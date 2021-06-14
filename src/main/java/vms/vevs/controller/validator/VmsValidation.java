@@ -5,19 +5,34 @@ import vms.vevs.entity.employee.Employee;
 import vms.vevs.entity.employee.User;
 import vms.vevs.entity.virtualObject.VisitorVO;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class VmsValidation {
-   public void validateLocation(Location location){
+   public List<String> validateLocation(Location location){
+    List<String> validateMessage = new ArrayList<>();
 
+
+    return  validateMessage;
     }
-    public void  validateUser(User user){
+    public List<String>  validateUser(User user){
+     List<String> validateMessage = new ArrayList<>();
 
+
+     return  validateMessage;
     }
 
-    public void validateEmployee(Employee employee){
+    public List<String> validateEmployee(Employee employee){
+     List<String> validateMessage = new ArrayList<>();
 
+
+     return  validateMessage;
     }
-    public void validateVisitor(VisitorVO visitor){
+    public List<String> validateVisitor(VisitorVO visitor){
+     List<String> validateMessage = new ArrayList<>();
 
+
+     return  validateMessage;
     }
 
 }
