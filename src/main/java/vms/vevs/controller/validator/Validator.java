@@ -13,6 +13,7 @@ import vms.vevs.entity.visitor.Visitor;
 import vms.vevs.repo.EmployeeRepository;
 import vms.vevs.repo.LocationRepository;
 import vms.vevs.repo.VisitorRepository;
+import vms.vevs.service.AppOTPService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,9 @@ public class Validator extends ValidatorHelper {
 
     @Autowired
     VisitorRepository visitorRepository;
+
+    @Autowired
+    AppOTPService otpService;
 
     public List<String> createLocation(Location location) {
         List<String> validateMessage = new ArrayList<>();
@@ -210,6 +214,10 @@ public class Validator extends ValidatorHelper {
         if (!validateMinMaxLengthOfStr(visitorAddress, 3, 50)) {
             validateMessage.add("Address contains only 3 - 50 characters.");
         }
+        if(!otpService.isValidOTP(visitorOTP,visitorEmail,mobileNumber)){
+            validateMessage.add("Please provide a valid OTP, Check your mailbox.");
+        }
+
         return validateMessage;
     }
 

@@ -4,13 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.common.Location;
+import vms.vevs.entity.virtualObject.HttpResponse;
 import vms.vevs.service.LocationService;
+
 import java.util.List;
-import java.util.Optional;
 
 
 @RestController
@@ -23,50 +23,57 @@ public class LocationController {
     LocationService locationService;
 
     @GetMapping("all")
-    public  List<Location> allLocation(){
+    public HttpResponse<?> allLocation() {
         logger.info("Get all locations");
-
-          return locationService.allLocation();
+        HttpResponse<List<Location>> response = new HttpResponse<>();
+        response.setResponseObject(locationService.allLocation());
+        return response;
     }
 
     @PostMapping(value = "create", produces = MediaType.APPLICATION_JSON_VALUE)
-    public   Location createLocation(@RequestBody Location location){
-
-        List<String>  validateLocation=   new Validator().createLocation(location);
-        if (validateLocation.size()>0){
-            logger.info(validateLocation.toString());
+    public HttpResponse<?> createLocation(@RequestBody Location location) {
+        HttpResponse<Location> response = new HttpResponse<>();
+        List<String> validateLocation = new Validator().createLocation(location);
+        if (!validateLocation.isEmpty()) {
+            return new HttpResponse().errorResponse(validateLocation);
         }
-           return  locationService.newLocation(location);
+        response.setResponseObject(locationService.newLocation(location));
+        return response;
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
-    public   Location updateLocation(@RequestBody Location location){
+    public HttpResponse<?> updateLocation(@RequestBody Location location) {
+        HttpResponse<Location> response = new HttpResponse<>();
 
-
-
-        List<String>  validateLocation=   new Validator().updateLocation(location);
-        if (validateLocation.size()>0){
-            logger.info(validateLocation.toString());
+        List<String> validateMsgList = new Validator().updateLocation(location);
+        if (!validateMsgList.isEmpty()) {
+            return new HttpResponse().errorResponse(validateMsgList);
         }
-        return  locationService.newLocation(location);
+        response.setResponseObject(locationService.newLocation(location));
+        return response;
     }
-
 
 
     @GetMapping("view/{id}")
-    public Optional<Location> locationById(@PathVariable Long id){
-        return  locationService.locationById(id);
+    public HttpResponse<?> locationById(@PathVariable Long id) {
+        HttpResponse<Location> response = new HttpResponse<>();
+        response.setResponseObject(locationService.locationById(id));
+        return response;
     }
-
 
 
     @GetMapping("withoutLogin/all")
-    public  List<Location> allLocations(){
-        return locationService.allLocation();
+    public HttpResponse<?> allLocations() {
+        HttpResponse<List<Location>> response = new HttpResponse<>();
+        response.setResponseObject(locationService.allLocation());
+        return response;
     }
+
     @GetMapping("withoutLogin/view/{id}")
-    public Optional<Location> viewLocationById(@PathVariable Long id){
-        return  locationService.locationById(id);
+    public HttpResponse<?> viewLocation(@PathVariable Long id) {
+        HttpResponse<Location> response = new HttpResponse<>();
+        response.setResponseObject(locationService.locationById(id));
+        return response;
     }
 
 }

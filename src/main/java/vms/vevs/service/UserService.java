@@ -12,7 +12,7 @@ public interface UserService {
 
     User saveUser(User user);
 
-    void updateUser(User user);
+    User updateUser(User user);
 
 
     List<User> findAllUsers();

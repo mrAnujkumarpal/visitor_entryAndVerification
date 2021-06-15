@@ -7,6 +7,7 @@ import vms.vevs.common.util.VmsUtils;
 import vms.vevs.entity.common.AppOTP;
 import vms.vevs.repo.AppOTPRepository;
 import vms.vevs.service.AppOTPService;
+
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.util.List;
@@ -15,53 +16,51 @@ import java.util.List;
 @Transactional
 public class AppOTPServiceImpl implements AppOTPService {
 
-   @Autowired
+    @Autowired
     AppOTPRepository otpRepository;
 
-   @Autowired
-   EmailService emailService;
+    @Autowired
+    EmailService emailService;
 
 
+    public String createAndSendOTP(AppOTP otpRequest) {
+        String randomOTP = Integer.toString(VmsUtils.createOTP());
 
+        AppOTP appOTP = new AppOTP();
+        appOTP.setOtp(randomOTP);
+        appOTP.setEmail(otpRequest.getEmail());
+        appOTP.setMobileNumber(otpRequest.getMobileNumber());
+        appOTP.setCreatedOn(VmsUtils.currentTime());
+        appOTP.setOptValidTill(VmsUtils.addMinutesInCurrentTime(5));
 
-  public String createAndSendOTP(AppOTP otpRequest){
-       String randomOTP= Integer.toString(VmsUtils.createOTP());
+        try {
+            otpRepository.save(appOTP);
+            //send OTP by email
+            emailService.sendEmailOTP(otpRequest.getEmail(), randomOTP);
+            //send OTP by sms
 
-       AppOTP appOTP=new AppOTP();
-       appOTP.setOtp(randomOTP);
-       appOTP.setEmail(otpRequest.getEmail());
-       appOTP.setMobileNumber(otpRequest.getMobileNumber());
-       appOTP.setCreatedOn(VmsUtils.currentTime());
-       appOTP.setOptValidTill(VmsUtils.addMinutesInCurrentTime(5));
-
-       try {
-           otpRepository.save(appOTP);
-           //send OTP by email
-           emailService.sendEmailOTP(otpRequest.getEmail(),randomOTP);
-           //send OTP by sms
-
-       }catch(Exception e){
-           e.printStackTrace();
-       }
-      return "OTP sent successfully";
-   }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "OTP sent successfully";
+    }
 
     @Override
     public boolean isValidOTP(String otp, String email, String mobileNumber) {
-        AppOTP otpFromDB=otpRepository.findByMobileNumber(mobileNumber);
-        Boolean bool=false;
-        if(otpFromDB==null){
-            otpFromDB=otpRepository.findByEmail(email);
-            if(otpFromDB==null){
+        AppOTP otpFromDB = otpRepository.findByMobileNumber(mobileNumber);
+        Boolean bool = false;
+        if (otpFromDB == null) {
+            otpFromDB = otpRepository.findByEmail(email);
+            if (otpFromDB == null) {
                 return false;
             }
         }
-        Timestamp otpValidTill=otpFromDB.getOptValidTill();
-        Timestamp currentTimestamp=VmsUtils.currentTime();
+        Timestamp otpValidTill = otpFromDB.getOptValidTill();
+        Timestamp currentTimestamp = VmsUtils.currentTime();
 
-        if(otpValidTill.after(currentTimestamp)) {
+        if ((otpFromDB.getOtp()).equals(otp) && otpValidTill.after(currentTimestamp)) {
 
-            bool= true;
+            bool = true;
         }
         return bool;
     }

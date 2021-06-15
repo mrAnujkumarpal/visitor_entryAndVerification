@@ -32,5 +32,5 @@ public abstract class BaseEntity{
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Timestamp modifiedOn;
 
-    private boolean enable=true;
+    private boolean enable;
 }

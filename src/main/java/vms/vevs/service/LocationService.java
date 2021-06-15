@@ -11,5 +11,5 @@ public interface LocationService {
 
     Location newLocation(Location location);
 
-    Optional<Location> locationById(Long id);
+     Location  locationById(Long id);
 }

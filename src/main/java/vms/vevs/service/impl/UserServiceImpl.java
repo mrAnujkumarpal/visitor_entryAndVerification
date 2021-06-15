@@ -40,13 +40,13 @@ public class UserServiceImpl implements UserService  {
     }
 
     @Override
-    public void updateUser(User user) {
+    public User updateUser(User user) {
 
        User dbUser= userRepository.getById(user.getId());
 
         dbUser.setModifiedOn(VmsUtils.currentTime());
 
-        userRepository.save(dbUser);
+       return userRepository.save(dbUser);
     }
 
 

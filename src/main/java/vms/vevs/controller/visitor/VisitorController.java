@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.common.AppOTP;
+import vms.vevs.entity.common.Location;
+import vms.vevs.entity.virtualObject.HttpResponse;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
 import vms.vevs.service.AppOTPService;
@@ -26,43 +28,48 @@ public class VisitorController {
     AppOTPService otpService;
 
     @RequestMapping(value = "all", method = RequestMethod.GET)
-    public List<Visitor> listAllVisitor() {
+    public HttpResponse<?> listAllVisitor() {
+        HttpResponse<List<Visitor>> response = new HttpResponse<>();
         List<Visitor> visitors = visitorService.allVisitors();
         if (visitors.isEmpty()) {
 
             // You many decide to return HttpStatus.NOT_FOUND
         }
-        return visitors;
+        response.setResponseObject(visitors);
+        return response;
     }
 
     @RequestMapping(value = "create", method = RequestMethod.POST)
-    public Visitor createVisitor(@RequestBody VisitorVO request, UriComponentsBuilder ucBuilder) {
+    public HttpResponse<?> createVisitor(@RequestBody VisitorVO request, UriComponentsBuilder ucBuilder) {
+        HttpResponse<Visitor> response = new HttpResponse<>();
         logger.info("Creating User : {}", request);
 
-        List<String> validateVisitor = new Validator().validateVisitor(request);
-        if (validateVisitor.size() > 0) {
-            logger.info(validateVisitor.toString());
+        List<String> validateMsgList = new Validator().validateVisitor(request);
+        if (!validateMsgList.isEmpty()) {
+            return new HttpResponse().errorResponse(validateMsgList);
         }
 
-        return visitorService.newVisitor(request);
+        response.setResponseObject(visitorService.newVisitor(request));
+        return response;
     }
 
     @RequestMapping(value = "view/{visitorId}", method = RequestMethod.POST)
-    public Visitor visitorById(@PathVariable("visitorId") long id, UriComponentsBuilder ucBuilder) {
-
-        return visitorService.getVisitorById(id);
+    public HttpResponse<?> visitorById(@PathVariable("visitorId") long id, UriComponentsBuilder ucBuilder) {
+        HttpResponse<Visitor> response = new HttpResponse<>();
+        response.setResponseObject(visitorService.getVisitorById(id));
+        return response;
     }
 
     @RequestMapping(value = "update", method = RequestMethod.POST)
-    public Visitor updateVisitor(@RequestBody Visitor visitor, UriComponentsBuilder ucBuilder) {
-
-        List<String> validateVisitor = new Validator().updateVisitor(visitor);
-        if (validateVisitor.size() > 0) {
-            logger.info(validateVisitor.toString());
+    public HttpResponse<?> updateVisitor(@RequestBody Visitor visitor, UriComponentsBuilder ucBuilder) {
+        HttpResponse<Visitor> response = new HttpResponse<>();
+        List<String> validationMsgList = new Validator().updateVisitor(visitor);
+        if (!validationMsgList.isEmpty()) {
+            return new HttpResponse().errorResponse(validationMsgList);
         }
 
-        return visitorService.updateVisitor(visitor);
-
+        response.setResponseObject(visitorService.updateVisitor(visitor));
+        return response;
     }
 
 
