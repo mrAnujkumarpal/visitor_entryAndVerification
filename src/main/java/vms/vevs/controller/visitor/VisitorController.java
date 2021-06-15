@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.common.AppOTP;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
@@ -25,7 +26,7 @@ public class VisitorController {
     AppOTPService otpService;
 
     @RequestMapping(value = "all", method = RequestMethod.GET)
-    public  List<Visitor> listAllVisitor() {
+    public List<Visitor> listAllVisitor() {
         List<Visitor> visitors = visitorService.allVisitors();
         if (visitors.isEmpty()) {
 
@@ -35,39 +36,45 @@ public class VisitorController {
     }
 
     @RequestMapping(value = "create", method = RequestMethod.POST)
-    public Visitor createVisitor(@RequestBody VisitorVO request,  UriComponentsBuilder ucBuilder) {
+    public Visitor createVisitor(@RequestBody VisitorVO request, UriComponentsBuilder ucBuilder) {
         logger.info("Creating User : {}", request);
+
+        List<String> validateVisitor = new Validator().validateVisitor(request);
+        if (validateVisitor.size() > 0) {
+            logger.info(validateVisitor.toString());
+        }
+
         return visitorService.newVisitor(request);
-   }
+    }
+
     @RequestMapping(value = "view/{visitorId}", method = RequestMethod.POST)
     public Visitor visitorById(@PathVariable("visitorId") long id, UriComponentsBuilder ucBuilder) {
 
         return visitorService.getVisitorById(id);
     }
 
-    @RequestMapping(value = "update/{visitorId}", method = RequestMethod.POST)
-    public Visitor updateVisitor(@RequestBody Visitor visitor, @PathVariable("visitorId") long id,UriComponentsBuilder ucBuilder) {
+    @RequestMapping(value = "update", method = RequestMethod.POST)
+    public Visitor updateVisitor(@RequestBody Visitor visitor, UriComponentsBuilder ucBuilder) {
 
-
-        Visitor visitorfromDB= visitorService.getVisitorById(id);
-        if(visitorfromDB!=null){
-            visitor.setId(id);
+        List<String> validateVisitor = new Validator().updateVisitor(visitor);
+        if (validateVisitor.size() > 0) {
+            logger.info(validateVisitor.toString());
         }
 
-       return visitorService.updateVisitor(visitor);
+        return visitorService.updateVisitor(visitor);
 
     }
 
 
-    @RequestMapping(value = "sendOTP",method = RequestMethod.POST)
-    public String createAndSendOTP(@RequestBody AppOTP otpRequest){
-      return  otpService.createAndSendOTP(otpRequest);
+    @RequestMapping(value = "sendOTP", method = RequestMethod.POST)
+    public String createAndSendOTP(@RequestBody AppOTP otpRequest) {
+        return otpService.createAndSendOTP(otpRequest);
     }
 
-    @RequestMapping(value = "pendingOTP",method = RequestMethod.GET)
-    public List<AppOTP> availPendingOTP(){
+    @RequestMapping(value = "pendingOTP", method = RequestMethod.GET)
+    public List<AppOTP> availPendingOTP() {
 
-       return otpService.allPendingOTP();
+        return otpService.allPendingOTP();
 
     }
 }

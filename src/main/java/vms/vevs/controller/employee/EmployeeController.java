@@ -4,24 +4,12 @@ package vms.vevs.controller.employee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
-import vms.vevs.common.exception.handler.CustomErrorType;
-import vms.vevs.common.util.JWTUtility;
-import vms.vevs.controller.user.UserController;
+import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.employee.Employee;
-import vms.vevs.entity.employee.User;
-import vms.vevs.entity.virtualObject.JWTRequest;
-import vms.vevs.entity.virtualObject.JWTResponse;
 import vms.vevs.service.EmployeeService;
-import vms.vevs.service.UserService;
 
 import java.util.List;
 
@@ -61,28 +49,29 @@ public class EmployeeController {
     public Employee createEmployee(@RequestBody Employee emp) {
         logger.info("Creating employee : {}", emp);
 
-        if (employeeService.isEmployeeExist(emp)) {
-
+        List<String>  validateEmployee=   new Validator().createEmployee(emp);
+        if (validateEmployee.size()>0){
+            logger.info(validateEmployee.toString());
         }
         return employeeService.addEmployee(emp);
 
     }
 
 
-    @RequestMapping(value = "update/{id}", method = RequestMethod.PUT, produces = "application/json")
-    public Employee updateEmployee(@PathVariable("id") long id, @RequestBody Employee emp) {
-        logger.info("Updating employee with id {}", id);
+    @RequestMapping(value = "update", method = RequestMethod.PUT, produces = "application/json")
+    public Employee updateEmployee(@RequestBody Employee emp) {
+        logger.info("Updating employee with id {}", emp.toString());
 
-        Employee existEmp = employeeService.employeeById(id);
 
-        if (existEmp == null) {
-            logger.error("Unable to update. User with id {} not found.", id);
+        List<String>  validateEmployee=   new Validator().updateEmployee(emp);
+        if (validateEmployee.size()>0){
+            logger.info(validateEmployee.toString());
         }
 
-        existEmp.setName(emp.getName());
 
 
-        return employeeService.updateEmployee(existEmp);
+
+        return employeeService.updateEmployee(emp);
 
     }
 

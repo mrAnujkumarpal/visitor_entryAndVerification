@@ -1,6 +1,5 @@
 package vms.vevs.service;
 
-import org.springframework.security.core.userdetails.UserDetails;
 import vms.vevs.entity.employee.User;
 
 import java.util.List;

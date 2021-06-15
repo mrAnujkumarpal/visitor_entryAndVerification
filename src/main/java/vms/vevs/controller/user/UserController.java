@@ -1,24 +1,16 @@
 package vms.vevs.controller.user;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import vms.vevs.common.exception.handler.CustomErrorType;
 import vms.vevs.common.util.JWTUtility;
 import vms.vevs.entity.employee.User;
-import vms.vevs.entity.virtualObject.JWTRequest;
-import vms.vevs.entity.virtualObject.JWTResponse;
 import vms.vevs.service.UserService;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import vms.vevs.service.impl.UserServiceImpl;
 
 import java.util.List;
@@ -40,6 +32,7 @@ public class UserController {
     @Autowired
     JWTUtility jwtUtility;
 
+    /*
     @Autowired
     AuthenticationManager authenticationManager;
 
@@ -63,7 +56,7 @@ public class UserController {
         return  new JWTResponse(jwtToken);
     }
 
-
+*/
 
     @RequestMapping(value = "all", method = RequestMethod.GET)
     public ResponseEntity<List<User>> listAllUsers() {

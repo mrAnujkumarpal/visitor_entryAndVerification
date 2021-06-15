@@ -3,7 +3,6 @@ package vms.vevs.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vms.vevs.common.util.VmsUtils;
-import vms.vevs.entity.common.Location;
 import vms.vevs.entity.employee.Employee;
 import vms.vevs.repo.EmployeeRepository;
 import vms.vevs.repo.LocationRepository;
@@ -46,8 +45,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee updateEmployee(Employee employee) {
 
-        employee.setCreatedOn(VmsUtils.currentTime());
-        return  employeeRepository.save(employee);
+        Employee empFromDB = employeeRepository.getById(employee.getId());
+
+        empFromDB.setModifiedOn(VmsUtils.currentTime());
+        empFromDB.setDesignation(employee.getDesignation());
+        empFromDB.setMobileNumber(employee.getMobileNumber());
+        empFromDB.setEmployeeImage(employee.getEmployeeImage());
+        empFromDB.setCurrentLocation(employee.getCurrentLocation());
+
+        return  employeeRepository.save(empFromDB);
     }
 
     @Override

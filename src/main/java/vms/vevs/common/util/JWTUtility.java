@@ -1,24 +1,14 @@
 package vms.vevs.common.util;
 
-import lombok.Value;
 import org.springframework.stereotype.Component;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 import java.io.Serializable;
 @Component
 public class JWTUtility implements Serializable {
 
 
     private String SECRET_KEY = "MadhavSinghPalRaghavSinghPal";
-
+/*
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -55,5 +45,7 @@ public class JWTUtility implements Serializable {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
+
+ */
 }
 

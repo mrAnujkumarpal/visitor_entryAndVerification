@@ -11,7 +11,7 @@ public class VmsUtils {
 
     public static String visitorCode() {
 
-        return VmsConstants.ORG_CODE+System.currentTimeMillis();
+        return VmsConstants.ORG_CODE + System.currentTimeMillis();
     }
     public static Integer createOTP(){
         return ThreadLocalRandom.current().nextInt(100000, 1000000);

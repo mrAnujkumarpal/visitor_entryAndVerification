@@ -13,6 +13,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+
 public class Employee extends BaseEntity {
 
     private String employeeCode;
@@ -40,6 +41,14 @@ public class Employee extends BaseEntity {
 
     @Override
     public String toString() {
-        return super.toString();
+        return "Employee{" +
+                "employeeCode='" + employeeCode + '\'' +
+                ", mobileNumber='" + mobileNumber + '\'' +
+                ", designation='" + designation + '\'' +
+                ", emailId='" + emailId + '\'' +
+                ", employeeImage='" + employeeImage + '\'' +
+                ", baseLocation=" + baseLocation +
+                ", currentLocation=" + currentLocation +
+                '}';
     }
 }
