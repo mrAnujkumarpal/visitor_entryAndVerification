@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.common.Location;
 import vms.vevs.entity.virtualObject.HttpResponse;
+import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.service.LocationService;
 
 import java.util.List;
@@ -21,6 +22,9 @@ public class LocationController {
 
     @Autowired
     LocationService locationService;
+
+    @Autowired
+    MessageByLocaleService messageSource;
 
     @GetMapping("all")
     public HttpResponse<?> allLocation() {
@@ -62,18 +66,27 @@ public class LocationController {
     }
 
 
-    @GetMapping("withoutLogin/all")
+    @GetMapping("public/all")
     public HttpResponse<?> allLocations() {
         HttpResponse<List<Location>> response = new HttpResponse<>();
         response.setResponseObject(locationService.allLocation());
         return response;
     }
 
-    @GetMapping("withoutLogin/view/{id}")
+    @GetMapping("public/view/{id}")
     public HttpResponse<?> viewLocation(@PathVariable Long id) {
         HttpResponse<Location> response = new HttpResponse<>();
         response.setResponseObject(locationService.locationById(id));
         return response;
     }
-
+  /*  //internationalization
+    @GetMapping(path = "/hello-world-internationalized")
+    public String helloWorldInternationalized() {
+        return messageSource.getMessage("good.morning.message");
+    }*/
+    @GetMapping(path = "/hello-world")
+    public String helloWorld() {
+        logger.info("In side hello world");
+        return messageSource.getMessage("good.morning", new Object[] {"Anuj", "Pal"});
+    }
 }

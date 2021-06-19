@@ -3,6 +3,7 @@ package vms.vevs.controller.validator;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.common.util.VmsConstants;
 import vms.vevs.entity.common.Location;
 import vms.vevs.entity.common.VMSEnum;
@@ -10,6 +11,7 @@ import vms.vevs.entity.employee.Employee;
 import vms.vevs.entity.employee.User;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
+import vms.vevs.i18.MessageByLocaleServiceImpl;
 import vms.vevs.repo.EmployeeRepository;
 import vms.vevs.repo.LocationRepository;
 import vms.vevs.repo.VisitorRepository;
@@ -32,6 +34,10 @@ public class Validator extends ValidatorHelper {
     @Autowired
     AppOTPService otpService;
 
+    @Autowired
+    MessageByLocaleService messageService;
+
+
     public List<String> createLocation(Location location) {
         List<String> validateMessage = new ArrayList<>();
 
@@ -40,9 +46,12 @@ public class Validator extends ValidatorHelper {
         locName = locName.trim();
         locContactNo = locContactNo.trim();
         if (StringUtils.isEmpty(locName) || StringUtils.isEmpty(locContactNo)) {
+            System.out.println("Inside all validation ");
+            String message = messageService.getMessage("all.fields.required");
+            System.out.println(message);
 
-            //validateMessage.add(messageByPropertyFile.getMessage("all.fields.required"));
-            validateMessage.add("Name contains only 3 - 20 characters.");
+            validateMessage.add(message);
+          return validateMessage;
         }
         if (!validateMinMaxLengthOfStr(locName, 3, 20)) {
             validateMessage.add("Name contains only 3 - 20 characters.");
@@ -214,7 +223,7 @@ public class Validator extends ValidatorHelper {
         if (!validateMinMaxLengthOfStr(visitorAddress, 3, 50)) {
             validateMessage.add("Address contains only 3 - 50 characters.");
         }
-        if(!otpService.isValidOTP(visitorOTP,visitorEmail,mobileNumber)){
+        if (!otpService.isValidOTP(visitorOTP, visitorEmail, mobileNumber)) {
             validateMessage.add("Please provide a valid OTP, Check your mailbox.");
         }
 

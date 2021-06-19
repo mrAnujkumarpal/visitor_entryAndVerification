@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService  {
         user.setEnable(true);
         user.setCreatedBy("loggedIn user");
         user.setCreatedOn(VmsUtils.currentTime());
-   return     userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
