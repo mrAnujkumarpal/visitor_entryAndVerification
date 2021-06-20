@@ -3,15 +3,11 @@ package vms.vevs.controller.user;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import vms.vevs.common.exception.handler.CustomErrorType;
 import vms.vevs.common.util.JWTUtility;
-import vms.vevs.entity.employee.User;
+import vms.vevs.entity.employee.AppUser;
 import vms.vevs.entity.virtualObject.HttpResponse;
-import vms.vevs.entity.visitor.Visitor;
 import vms.vevs.service.UserService;
 import vms.vevs.service.impl.UserServiceImpl;
 
@@ -67,7 +63,7 @@ public class UserController {
 
     @GetMapping(value = "all")
     public HttpResponse<?> listAllUsers() {
-        HttpResponse<List<User>> response = new HttpResponse<>();
+        HttpResponse<List<AppUser>> response = new HttpResponse<>();
         response.setResponseObject(userService.findAllUsers());
         return response;
     }
@@ -76,16 +72,16 @@ public class UserController {
     @GetMapping(value = "view/{id}")
     public HttpResponse<?> getUser(@PathVariable("id") long id) {
         logger.info("Fetching User with id {}", id);
-        HttpResponse<User> response = new HttpResponse<>();
+        HttpResponse<AppUser> response = new HttpResponse<>();
 
         response.setResponseObject(userService.findById(id));
         return response;
     }
 
     @PostMapping(value = "create")
-    public HttpResponse<?> createUser(@RequestBody User user, UriComponentsBuilder ucBuilder) {
+    public HttpResponse<?> createUser(@RequestBody AppUser user, UriComponentsBuilder ucBuilder) {
         logger.info("Creating User : {}", user);
-        HttpResponse<User> response = new HttpResponse<>();
+        HttpResponse<AppUser> response = new HttpResponse<>();
 
 
         response.setResponseObject(userService.saveUser(user));
@@ -94,10 +90,10 @@ public class UserController {
 
 
     @PutMapping(value = "update/{id}")
-    public HttpResponse<?> updateUser(@PathVariable("id") long id, @RequestBody User user) {
+    public HttpResponse<?> updateUser(@PathVariable("id") long id, @RequestBody AppUser user) {
         logger.info("Updating User with id {}", id);
-        HttpResponse<User> response = new HttpResponse<>();
-        User currentUser = userService.findById(id);
+        HttpResponse<AppUser> response = new HttpResponse<>();
+        AppUser currentUser = userService.findById(id);
 
 
         response.setResponseObject(userService.updateUser(currentUser));

@@ -3,7 +3,7 @@ package vms.vevs.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vms.vevs.common.util.VmsUtils;
-import vms.vevs.entity.employee.User;
+import vms.vevs.entity.employee.AppUser;
 import vms.vevs.repo.UserRepository;
 import vms.vevs.service.UserService;
 
@@ -20,18 +20,18 @@ public class UserServiceImpl implements UserService  {
 
 
     @Override
-    public User findById(long id) {
+    public AppUser findById(long id) {
         return userRepository.getById(id);
 
     }
 
     @Override
-    public User findByUserName(String userName) {
+    public AppUser findByUserName(String userName) {
         return userRepository.findByUserName(userName);
     }
 
     @Override
-    public User saveUser(User user) {
+    public AppUser saveUser(AppUser user) {
 
         user.setEnable(true);
         user.setCreatedBy("loggedIn user");
@@ -40,9 +40,9 @@ public class UserServiceImpl implements UserService  {
     }
 
     @Override
-    public User updateUser(User user) {
+    public AppUser updateUser(AppUser user) {
 
-       User dbUser= userRepository.getById(user.getId());
+       AppUser dbUser= userRepository.getById(user.getId());
 
         dbUser.setModifiedOn(VmsUtils.currentTime());
 
@@ -51,14 +51,14 @@ public class UserServiceImpl implements UserService  {
 
 
     @Override
-    public List<User> findAllUsers() {
+    public List<AppUser> findAllUsers() {
         return userRepository.findAll();
     }
 
 
 
     @Override
-    public boolean isUserExist(User user) {
+    public boolean isUserExist(AppUser user) {
         return userRepository.existsById(user.getId());
     }
 /*

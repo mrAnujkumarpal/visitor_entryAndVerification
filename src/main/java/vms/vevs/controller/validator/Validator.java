@@ -8,10 +8,9 @@ import vms.vevs.common.util.VmsConstants;
 import vms.vevs.entity.common.Location;
 import vms.vevs.entity.common.VMSEnum;
 import vms.vevs.entity.employee.Employee;
-import vms.vevs.entity.employee.User;
+import vms.vevs.entity.employee.AppUser;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
-import vms.vevs.i18.MessageByLocaleServiceImpl;
 import vms.vevs.repo.EmployeeRepository;
 import vms.vevs.repo.LocationRepository;
 import vms.vevs.repo.VisitorRepository;
@@ -43,14 +42,16 @@ public class Validator extends ValidatorHelper {
 
         String locName = location.getName();
         String locContactNo = location.getLocationContactNo();
+        String country=location.getCountry();
         locName = locName.trim();
         locContactNo = locContactNo.trim();
-        if (StringUtils.isEmpty(locName) || StringUtils.isEmpty(locContactNo)) {
+        country=country.trim();
+        if (StringUtils.isEmpty(locName) || StringUtils.isEmpty(locContactNo) || StringUtils.isEmpty(country)) {
             System.out.println("Inside all validation ");
-            String message = messageService.getMessage("all.fields.required");
-            System.out.println(message);
+            //String message = messageService.getMessage("all.fields.required");
+           // System.out.println(message);
 
-            validateMessage.add(message);
+            validateMessage.add("All fields are required");
           return validateMessage;
         }
         if (!validateMinMaxLengthOfStr(locName, 3, 20)) {
@@ -61,6 +62,9 @@ public class Validator extends ValidatorHelper {
         }
         if (!validateMinMaxLengthOfStr(locContactNo, 5, 30)) {
             validateMessage.add("Location contact number contains only 5 - 30 characters.");
+        }
+        if (!validateMinMaxLengthOfStr(country, 3, 30)) {
+            validateMessage.add("Location contact number contains only 3 - 30 characters.");
         }
         return validateMessage;
     }
@@ -80,7 +84,7 @@ public class Validator extends ValidatorHelper {
         return validateMessage;
     }
 
-    public List<String> validateUser(User user) {
+    public List<String> validateUser(AppUser user) {
         List<String> validateMessage = new ArrayList<>();
         String username = user.getUserName();
         String mobileNo = user.getMobileNo();

@@ -39,6 +39,14 @@ public class EmployeeController {
         return response;
     }
 
+    @GetMapping(value = "public/allEmployeesByLocation/{locationId}",  produces = "application/json")
+    public HttpResponse<?> employeesByLocationId(@PathVariable("locationId") long locId) {
+        logger.info("Fetching User with location Id {}", locId);
+        HttpResponse<List<Employee>> response = new HttpResponse<>();
+        response.setResponseObject(employeeService.employeesByLocationId(locId));
+        return response;
+    }
+
     @PostMapping(value = "create",  produces = "application/json")
     public HttpResponse<?> createEmployee(@RequestBody Employee emp) {
         logger.info("Creating employee : {}", emp);

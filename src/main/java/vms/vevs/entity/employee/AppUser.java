@@ -14,15 +14,15 @@ import javax.persistence.*;
 @Getter
 @Setter
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class User extends BaseEntity {
+public class AppUser extends BaseEntity {
 
     private String userName;
     private String mobileNo;
     private String password;
     private String userImage;
 
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-    private Location location;
+
+    private Long locationId;
 
 
 }

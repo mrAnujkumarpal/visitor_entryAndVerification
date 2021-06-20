@@ -26,13 +26,7 @@ public class LocationController {
     @Autowired
     MessageByLocaleService messageSource;
 
-    @GetMapping("all")
-    public HttpResponse<?> allLocation() {
-        logger.info("Get all locations");
-        HttpResponse<List<Location>> response = new HttpResponse<>();
-        response.setResponseObject(locationService.allLocation());
-        return response;
-    }
+
 
     @PostMapping(value = "create", produces = MediaType.APPLICATION_JSON_VALUE)
     public HttpResponse<?> createLocation(@RequestBody Location location) {
@@ -70,13 +64,6 @@ public class LocationController {
     public HttpResponse<?> allLocations() {
         HttpResponse<List<Location>> response = new HttpResponse<>();
         response.setResponseObject(locationService.allLocation());
-        return response;
-    }
-
-    @GetMapping("public/view/{id}")
-    public HttpResponse<?> viewLocation(@PathVariable Long id) {
-        HttpResponse<Location> response = new HttpResponse<>();
-        response.setResponseObject(locationService.locationById(id));
         return response;
     }
   /*  //internationalization

@@ -16,6 +16,7 @@ import javax.persistence.*;
 
 public class Employee extends BaseEntity {
 
+
     private String employeeCode;
     private String mobileNumber;
     private String designation;

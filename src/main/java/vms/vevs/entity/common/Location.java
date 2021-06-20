@@ -3,7 +3,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
+import javax.persistence.*;
 
 @Entity
 @Getter
@@ -11,5 +11,8 @@ import javax.persistence.Entity;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Location  extends BaseEntity {
 
+
+
     private String locationContactNo;
+    private String country;
 }

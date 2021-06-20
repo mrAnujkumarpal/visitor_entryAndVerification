@@ -20,12 +20,12 @@ public class VMSApplication {
 
 
 
-	@Bean
+	/*@Bean
 	public LocaleResolver localeResolver() {
 		SessionLocaleResolver slr = new SessionLocaleResolver();
 		slr.setDefaultLocale(Locale.US);
 		return slr;
-	}
+	}*/
 	/*@Bean
 	public ReloadableResourceBundleMessageSource messageSource() {
 		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
@@ -36,13 +36,6 @@ public class VMSApplication {
 	}
 */
 	//configuring ResourceBundle
-	@Bean
-	public ResourceBundleMessageSource messageSource() {
-		ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-		messageSource.setBasename("messages");
-		messageSource.setDefaultEncoding("UTF-8");
-        messageSource.setUseCodeAsDefaultMessage(true);
-		return messageSource;
-	}
+
 
 }

@@ -1,7 +1,6 @@
 package vms.vevs.service;
 
 import vms.vevs.entity.employee.Employee;
-import vms.vevs.entity.employee.User;
 
 import java.util.List;
 
@@ -15,4 +14,7 @@ public interface EmployeeService {
     Employee updateEmployee(Employee existEmp);
 
     List<Employee> allEmployee();
+
+
+    List<Employee> employeesByLocationId(long locId);
 }

@@ -39,7 +39,7 @@ public class VisitorController {
         return response;
     }
 
-    @RequestMapping(value = "create", method = RequestMethod.POST)
+    @PostMapping(value = "public/create")
     public HttpResponse<?> createVisitor(@RequestBody VisitorVO request, UriComponentsBuilder ucBuilder) {
         HttpResponse<Visitor> response = new HttpResponse<>();
         logger.info("Creating User : {}", request);
@@ -53,14 +53,14 @@ public class VisitorController {
         return response;
     }
 
-    @RequestMapping(value = "view/{visitorId}", method = RequestMethod.POST)
+    @GetMapping(value = "view/{visitorId}")
     public HttpResponse<?> visitorById(@PathVariable("visitorId") long id, UriComponentsBuilder ucBuilder) {
         HttpResponse<Visitor> response = new HttpResponse<>();
         response.setResponseObject(visitorService.getVisitorById(id));
         return response;
     }
 
-    @RequestMapping(value = "update", method = RequestMethod.POST)
+    @PutMapping(value = "update")
     public HttpResponse<?> updateVisitor(@RequestBody Visitor visitor, UriComponentsBuilder ucBuilder) {
         HttpResponse<Visitor> response = new HttpResponse<>();
         List<String> validationMsgList = new Validator().updateVisitor(visitor);
@@ -73,7 +73,7 @@ public class VisitorController {
     }
 
 
-    @RequestMapping(value = "sendOTP", method = RequestMethod.POST)
+    @RequestMapping(value = "public/sendOTP", method = RequestMethod.POST)
     public String createAndSendOTP(@RequestBody AppOTP otpRequest) {
         return otpService.createAndSendOTP(otpRequest);
     }
@@ -83,5 +83,12 @@ public class VisitorController {
 
         return otpService.allPendingOTP();
 
+    }
+
+    @GetMapping("public/purposeOfVisit")
+    public HttpResponse<?> purposeOfVisit() {
+        HttpResponse<List<String>> response = new HttpResponse<>();
+        response.setResponseObject(visitorService.purposeOfVisit());
+        return response;
     }
 }

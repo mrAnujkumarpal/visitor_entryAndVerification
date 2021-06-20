@@ -1,23 +1,23 @@
 package vms.vevs.service;
 
-import vms.vevs.entity.employee.User;
+import vms.vevs.entity.employee.AppUser;
 
 import java.util.List;
 
 public interface UserService {
 
-    User findById(long id);
+    AppUser findById(long id);
 
-    User findByUserName(String name);
+    AppUser findByUserName(String name);
 
-    User saveUser(User user);
+    AppUser saveUser(AppUser user);
 
-    User updateUser(User user);
-
-
-    List<User> findAllUsers();
+    AppUser updateUser(AppUser user);
 
 
+    List<AppUser> findAllUsers();
 
-    boolean isUserExist(User user);
+
+
+    boolean isUserExist(AppUser user);
 }

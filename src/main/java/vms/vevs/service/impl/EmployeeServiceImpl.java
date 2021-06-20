@@ -10,6 +10,7 @@ import vms.vevs.service.EmployeeService;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -28,8 +29,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public boolean isEmployeeExist(Employee emp) {
-        Employee emploee= employeeRepository.findByName(emp.getName());
-        if(emploee!=null){
+        Employee emploee = employeeRepository.findByName(emp.getName());
+        if (emploee != null) {
             return true;
         }
         return false;
@@ -38,7 +39,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee addEmployee(Employee emp) {
         emp.setCreatedOn(VmsUtils.currentTime());
-        return  employeeRepository.save(emp);
+        return employeeRepository.save(emp);
 
     }
 
@@ -53,11 +54,20 @@ public class EmployeeServiceImpl implements EmployeeService {
         empFromDB.setEmployeeImage(employee.getEmployeeImage());
         empFromDB.setCurrentLocation(employee.getCurrentLocation());
 
-        return  employeeRepository.save(empFromDB);
+        return employeeRepository.save(empFromDB);
     }
 
     @Override
     public List<Employee> allEmployee() {
         return employeeRepository.findAll();
+    }
+
+    @Override
+    public List<Employee> employeesByLocationId(long locId) {
+        List<Employee> empList = allEmployee();
+        return empList.stream()
+                .filter(x -> (x.getBaseLocation().getId()).equals(locId))
+                .collect(Collectors.toList());
+
     }
 }

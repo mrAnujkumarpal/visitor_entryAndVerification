@@ -14,7 +14,13 @@ import vms.vevs.repo.VisitorRepository;
 import vms.vevs.service.VisitorService;
 
 import javax.transaction.Transactional;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -33,7 +39,7 @@ public class VisitorServiceImpl implements VisitorService {
     LocationRepository locRepository;
 
     @Override
-    public Visitor newVisitor(VisitorVO newVisitor){
+    public Visitor newVisitor(VisitorVO newVisitor) {
         Visitor visitor = new Visitor();
         visitor.setEnable(true);
         visitor.setCreatedOn(VmsUtils.currentTime());
@@ -46,12 +52,12 @@ public class VisitorServiceImpl implements VisitorService {
         visitor.setVisitorStatus(VMSEnum.VISITOR_STATUS.CHECK_IN.name());
         visitor.setLocation(locRepository.getById(newVisitor.getLocationId()));
         visitor.setHostEmployee(empRepository.getById(newVisitor.getHostEmployeeId()));
-        VisitorImage visitorImage=new VisitorImage();
+        VisitorImage visitorImage = new VisitorImage();
         visitorImage.setVisitorCode(visitor.getVisitorCode());
         visitorImage.setVisitorImage(newVisitor.getVisitorImage());
         imageRepository.save(visitorImage);
 
-       return visitorRepository.save(visitor);
+        return visitorRepository.save(visitor);
 
     }
 
@@ -74,4 +80,14 @@ public class VisitorServiceImpl implements VisitorService {
         visitor.setModifiedBy("ADMIN USER");
         return visitorRepository.save(visitor);
     }
+
+    @Override
+    public List<String> purposeOfVisit() {
+        return enumNames;
+    }
+    List<String> enumNames = Stream.of(VMSEnum.PURPOSE_OF_VISIT.values())
+            .map(Enum::name)
+            .collect(Collectors.toList());
+
+
 }
