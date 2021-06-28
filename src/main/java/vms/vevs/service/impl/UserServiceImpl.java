@@ -1,64 +1,72 @@
 package vms.vevs.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vms.vevs.common.util.VmsUtils;
-import vms.vevs.entity.employee.AppUser;
+import vms.vevs.entity.employee.Users;
 import vms.vevs.repo.UserRepository;
 import vms.vevs.service.UserService;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
-public class UserServiceImpl implements UserService  {
+public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
 
-
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Override
-    public AppUser findById(long id) {
+    public Users findById(long id) {
         return userRepository.getById(id);
 
     }
 
     @Override
-    public AppUser findByUserName(String userName) {
-        return userRepository.findByUserName(userName);
+    public Optional<Users> findByUsername(String userName) {
+        return userRepository.findByUsername(userName);
     }
 
     @Override
-    public AppUser saveUser(AppUser user) {
+    public Users saveUser(Users user, Long loggedInUserId) {
 
         user.setEnable(true);
-        user.setCreatedBy("loggedIn user");
+        user.setCreatedBy(loggedInUserId);
         user.setCreatedOn(VmsUtils.currentTime());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
     @Override
-    public AppUser updateUser(AppUser user) {
+    public Users updateUser(Users user, Long userId) {
 
-       AppUser dbUser= userRepository.getById(user.getId());
+        Users dbUser = userRepository.getById(user.getId());
 
         dbUser.setModifiedOn(VmsUtils.currentTime());
-
-       return userRepository.save(dbUser);
+        dbUser.setModifiedBy(userId);
+        return userRepository.save(dbUser);
     }
 
 
     @Override
-    public List<AppUser> findAllUsers() {
+    public List<Users> findAllUsers() {
         return userRepository.findAll();
     }
 
+    @Override
+    public Optional<Users> findByUsernameOrEmail(String username, String email) {
+        return userRepository.findByUsernameOrEmail(username, email);
+    }
 
 
     @Override
-    public boolean isUserExist(AppUser user) {
+    public boolean isUserExist(Users user) {
         return userRepository.existsById(user.getId());
     }
 /*

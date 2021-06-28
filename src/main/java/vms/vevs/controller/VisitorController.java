@@ -1,5 +1,7 @@
-package vms.vevs.controller.visitor;
+package vms.vevs.controller;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.common.AppOTP;
-import vms.vevs.entity.common.Location;
 import vms.vevs.entity.virtualObject.HttpResponse;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
@@ -40,6 +41,7 @@ public class VisitorController {
     }
 
     @PostMapping(value = "public/create")
+    @ApiImplicitParams({ @ApiImplicitParam(name = "loggedInUserId") })
     public HttpResponse<?> createVisitor(@RequestBody VisitorVO request, UriComponentsBuilder ucBuilder) {
         HttpResponse<Visitor> response = new HttpResponse<>();
         logger.info("Creating User : {}", request);
@@ -54,26 +56,28 @@ public class VisitorController {
     }
 
     @GetMapping(value = "view/{visitorId}")
-    public HttpResponse<?> visitorById(@PathVariable("visitorId") long id, UriComponentsBuilder ucBuilder) {
+    public HttpResponse<?> visitorById(@PathVariable("visitorId") long id,
+                                       UriComponentsBuilder ucBuilder, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<Visitor> response = new HttpResponse<>();
         response.setResponseObject(visitorService.getVisitorById(id));
         return response;
     }
 
     @PutMapping(value = "update")
-    public HttpResponse<?> updateVisitor(@RequestBody Visitor visitor, UriComponentsBuilder ucBuilder) {
+    public HttpResponse<?> updateVisitor(@RequestBody Visitor visitor, UriComponentsBuilder ucBuilder, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<Visitor> response = new HttpResponse<>();
         List<String> validationMsgList = new Validator().updateVisitor(visitor);
         if (!validationMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validationMsgList);
         }
 
-        response.setResponseObject(visitorService.updateVisitor(visitor));
+        response.setResponseObject(visitorService.updateVisitor(visitor, loggedInUserId));
         return response;
     }
 
 
     @RequestMapping(value = "public/sendOTP", method = RequestMethod.POST)
+    @ApiImplicitParams({ @ApiImplicitParam(name = "loggedInUserId") })
     public String createAndSendOTP(@RequestBody AppOTP otpRequest) {
         return otpService.createAndSendOTP(otpRequest);
     }
@@ -86,6 +90,7 @@ public class VisitorController {
     }
 
     @GetMapping("public/purposeOfVisit")
+    @ApiImplicitParams({ @ApiImplicitParam(name = "loggedInUserId") })
     public HttpResponse<?> purposeOfVisit() {
         HttpResponse<List<String>> response = new HttpResponse<>();
         response.setResponseObject(visitorService.purposeOfVisit());

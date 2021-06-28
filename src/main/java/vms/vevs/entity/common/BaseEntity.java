@@ -21,12 +21,12 @@ public abstract class BaseEntity{
 
     private String name;
 
-    private String createdBy;
+    private Long createdBy;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Timestamp createdOn;
 
-    private String modifiedBy;
+    private Long modifiedBy;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Timestamp modifiedOn;

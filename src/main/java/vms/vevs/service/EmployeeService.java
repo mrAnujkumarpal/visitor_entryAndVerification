@@ -9,9 +9,9 @@ public interface EmployeeService {
 
     boolean isEmployeeExist(Employee emp);
 
-    Employee addEmployee(Employee emp);
+    Employee addEmployee(Employee emp,Long userId);
 
-    Employee updateEmployee(Employee existEmp);
+    Employee updateEmployee(Employee existEmp,Long userId);
 
     List<Employee> allEmployee();
 

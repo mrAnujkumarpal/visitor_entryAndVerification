@@ -1,4 +1,4 @@
-package vms.vevs.controller.employee;
+package vms.vevs.controller;
 
 
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class EmployeeController {
 
 
     @GetMapping(value = "all", produces = "application/json")
-    public HttpResponse<?> listAllEmployee() {
+    public HttpResponse<?> listAllEmployee(@RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<List<Employee>> response = new HttpResponse<>();
         response.setResponseObject(employeeService.allEmployee());
         return response;
@@ -32,7 +32,7 @@ public class EmployeeController {
 
 
     @GetMapping(value = "view/{id}",  produces = "application/json")
-    public HttpResponse<?> employeeById(@PathVariable("id") long id) {
+    public HttpResponse<?> employeeById(@PathVariable("id") long id, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Fetching User with id {}", id);
         HttpResponse<Employee> response = new HttpResponse<>();
         response.setResponseObject(employeeService.employeeById(id));
@@ -40,7 +40,7 @@ public class EmployeeController {
     }
 
     @GetMapping(value = "public/allEmployeesByLocation/{locationId}",  produces = "application/json")
-    public HttpResponse<?> employeesByLocationId(@PathVariable("locationId") long locId) {
+    public HttpResponse<?> employeesByLocationId(@PathVariable("locationId") long locId, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Fetching User with location Id {}", locId);
         HttpResponse<List<Employee>> response = new HttpResponse<>();
         response.setResponseObject(employeeService.employeesByLocationId(locId));
@@ -48,27 +48,27 @@ public class EmployeeController {
     }
 
     @PostMapping(value = "create",  produces = "application/json")
-    public HttpResponse<?> createEmployee(@RequestBody Employee emp) {
+    public HttpResponse<?> createEmployee(@RequestBody Employee emp, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Creating employee : {}", emp);
         HttpResponse<Employee> response = new HttpResponse<>();
         List<String> validationMsgList = new Validator().createEmployee(emp);
         if (!validationMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validationMsgList);
         }
-        response.setResponseObject(employeeService.addEmployee(emp));
+        response.setResponseObject(employeeService.addEmployee(emp,loggedInUserId));
         return response;
     }
 
 
     @PutMapping(value = "update",  produces = "application/json")
-    public HttpResponse<?> updateEmployee(@RequestBody Employee emp) {
+    public HttpResponse<?> updateEmployee(@RequestBody Employee emp, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Updating employee with id {}", emp);
         HttpResponse<Employee> response = new HttpResponse<>();
         List<String> validationMsgList = new Validator().updateEmployee(emp);
         if (!validationMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validationMsgList);
         }
-        response.setResponseObject(employeeService.updateEmployee(emp));
+        response.setResponseObject(employeeService.updateEmployee(emp,loggedInUserId));
         return response;
     }
 

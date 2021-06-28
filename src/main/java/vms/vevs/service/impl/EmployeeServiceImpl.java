@@ -29,25 +29,26 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public boolean isEmployeeExist(Employee emp) {
-        Employee emploee = employeeRepository.findByName(emp.getName());
-        if (emploee != null) {
+        Employee employee = employeeRepository.findByName(emp.getName());
+        if (employee != null) {
             return true;
         }
         return false;
     }
 
     @Override
-    public Employee addEmployee(Employee emp) {
+    public Employee addEmployee(Employee emp,Long userId) {
         emp.setCreatedOn(VmsUtils.currentTime());
+        emp.setCreatedBy(userId);
         return employeeRepository.save(emp);
 
     }
 
     @Override
-    public Employee updateEmployee(Employee employee) {
+    public Employee updateEmployee(Employee employee,Long userId) {
 
         Employee empFromDB = employeeRepository.getById(employee.getId());
-
+        empFromDB.setModifiedBy(userId);
         empFromDB.setModifiedOn(VmsUtils.currentTime());
         empFromDB.setDesignation(employee.getDesignation());
         empFromDB.setMobileNumber(employee.getMobileNumber());
@@ -64,8 +65,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<Employee> employeesByLocationId(long locId) {
-        List<Employee> empList = allEmployee();
-        return empList.stream()
+
+        return allEmployee().stream()
                 .filter(x -> (x.getBaseLocation().getId()).equals(locId))
                 .collect(Collectors.toList());
 

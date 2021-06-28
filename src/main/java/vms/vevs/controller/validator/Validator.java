@@ -3,12 +3,13 @@ package vms.vevs.controller.validator;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.common.util.VmsConstants;
 import vms.vevs.entity.common.Location;
 import vms.vevs.entity.common.VMSEnum;
 import vms.vevs.entity.employee.Employee;
-import vms.vevs.entity.employee.AppUser;
+import vms.vevs.entity.employee.Users;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
 import vms.vevs.repo.EmployeeRepository;
@@ -18,7 +19,7 @@ import vms.vevs.service.AppOTPService;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@Component
 public class Validator extends ValidatorHelper {
 
     @Autowired
@@ -33,11 +34,9 @@ public class Validator extends ValidatorHelper {
     @Autowired
     AppOTPService otpService;
 
-    @Autowired
-    MessageByLocaleService messageService;
 
 
-    public List<String> createLocation(Location location) {
+    public List<String> createLocation(Location location,MessageByLocaleService messageSource) {
         List<String> validateMessage = new ArrayList<>();
 
         String locName = location.getName();
@@ -47,12 +46,8 @@ public class Validator extends ValidatorHelper {
         locContactNo = locContactNo.trim();
         country=country.trim();
         if (StringUtils.isEmpty(locName) || StringUtils.isEmpty(locContactNo) || StringUtils.isEmpty(country)) {
-            System.out.println("Inside all validation ");
-            //String message = messageService.getMessage("all.fields.required");
-           // System.out.println(message);
+            validateMessage.add(messageSource.getMessage("all.fields.required"));
 
-            validateMessage.add("All fields are required");
-          return validateMessage;
         }
         if (!validateMinMaxLengthOfStr(locName, 3, 20)) {
             validateMessage.add("Name contains only 3 - 20 characters.");
@@ -69,7 +64,7 @@ public class Validator extends ValidatorHelper {
         return validateMessage;
     }
 
-    public List<String> updateLocation(Location location) {
+    public List<String> updateLocation(Location location,MessageByLocaleService messageSource) {
         List<String> validateMessage = new ArrayList<>();
         Long locId = location.getId();
         if (null == locId) {
@@ -80,13 +75,13 @@ public class Validator extends ValidatorHelper {
         if (null == locationFromDB) {
             validateMessage.add("Please provide a valid location id to update location.");
         }
-        createLocation(location);
+        createLocation(location,messageSource);
         return validateMessage;
     }
 
-    public List<String> validateUser(AppUser user) {
+    public List<String> validateUser(Users user) {
         List<String> validateMessage = new ArrayList<>();
-        String username = user.getUserName();
+        String username = user.getUsername();
         String mobileNo = user.getMobileNo();
         String password = user.getPassword();
         username = username.trim();

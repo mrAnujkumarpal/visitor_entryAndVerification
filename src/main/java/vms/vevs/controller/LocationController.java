@@ -1,5 +1,7 @@
-package vms.vevs.controller.common;
+package vms.vevs.controller;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,31 +31,31 @@ public class LocationController {
 
 
     @PostMapping(value = "create", produces = MediaType.APPLICATION_JSON_VALUE)
-    public HttpResponse<?> createLocation(@RequestBody Location location) {
+    public HttpResponse<?> createLocation(@RequestBody Location location,@RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<Location> response = new HttpResponse<>();
-        List<String> validateLocation = new Validator().createLocation(location);
+        List<String> validateLocation = new Validator().createLocation(location,messageSource);
         if (!validateLocation.isEmpty()) {
             return new HttpResponse().errorResponse(validateLocation);
         }
-        response.setResponseObject(locationService.newLocation(location));
+        response.setResponseObject(locationService.newLocation(location,loggedInUserId));
         return response;
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
-    public HttpResponse<?> updateLocation(@RequestBody Location location) {
+    public HttpResponse<?> updateLocation(@RequestBody Location location,@RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<Location> response = new HttpResponse<>();
 
-        List<String> validateMsgList = new Validator().updateLocation(location);
+        List<String> validateMsgList = new Validator().updateLocation(location,messageSource);
         if (!validateMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validateMsgList);
         }
-        response.setResponseObject(locationService.newLocation(location));
+        response.setResponseObject(locationService.updateLocation(location,loggedInUserId));
         return response;
     }
 
 
     @GetMapping("view/{id}")
-    public HttpResponse<?> locationById(@PathVariable Long id) {
+    public HttpResponse<?> locationById(@PathVariable Long id,@RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<Location> response = new HttpResponse<>();
         response.setResponseObject(locationService.locationById(id));
         return response;
@@ -61,6 +63,7 @@ public class LocationController {
 
 
     @GetMapping("public/all")
+    @ApiImplicitParams({ @ApiImplicitParam(name = "loggedInUserId") })
     public HttpResponse<?> allLocations() {
         HttpResponse<List<Location>> response = new HttpResponse<>();
         response.setResponseObject(locationService.allLocation());
@@ -72,7 +75,8 @@ public class LocationController {
         return messageSource.getMessage("good.morning.message");
     }*/
     @GetMapping(path = "/hello-world")
-    public String helloWorld() {
+
+    public String helloWorld(@RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("In side hello world");
         return messageSource.getMessage("good.morning", new Object[] {"Anuj", "Pal"});
     }

@@ -72,12 +72,12 @@ public class VisitorServiceImpl implements VisitorService {
     }
 
     @Override
-    public Visitor updateVisitor(Visitor visitor) {
+    public Visitor updateVisitor(Visitor visitor,Long loggedInUserId) {
 
         visitor.setVisitorStatus(VMSEnum.VISITOR_STATUS.CHECK_OUT.name());
         visitor.setCardNoGivenToVisitor("Token-001");
         visitor.setModifiedOn(VmsUtils.currentTime());
-        visitor.setModifiedBy("ADMIN USER");
+        visitor.setModifiedBy(loggedInUserId);
         return visitorRepository.save(visitor);
     }
 

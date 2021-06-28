@@ -23,15 +23,28 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public Location newLocation(Location location) {
+    public Location newLocation(Location location,Long loggedInUserId) {
 
         location.setEnable(true);
+        location.setCreatedBy(loggedInUserId);
         location.setCreatedOn(VmsUtils.currentTime());
+        location.setModifiedOn(VmsUtils.currentTime());
         return locationRepository.save(location);
     }
 
     @Override
     public Location  locationById(Long id) {
         return locationRepository.getById(id);
+    }
+
+    @Override
+    public Location updateLocation(Location location, Long loggedInUserId) {
+        Location locFromDb=locationRepository.getById(location.getId());
+        locFromDb.setModifiedBy(loggedInUserId);
+        locFromDb.setModifiedOn(VmsUtils.currentTime());
+        locFromDb.setName(location.getName());
+        locFromDb.setEnable(location.isEnable());
+        locFromDb.setLocationContactNo(location.getLocationContactNo());
+        return locationRepository.save(locFromDb);
     }
 }
