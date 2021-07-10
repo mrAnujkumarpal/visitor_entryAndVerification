@@ -40,6 +40,7 @@ public class EmailServiceImpl implements EmailService {
         msg.setTo(visitor.getHostEmployee().getEmailId());
         msg.setFrom(VmsConstants.MAIL_SENDER);
         msg.setSubject(VmsConstants.APPLICATION.concat(visitor.getPurposeOfVisit().concat(" with ").concat(visitor.getName())));
+
         msg.setText("Dear " +visitor.getHostEmployee().getName() +", \n\n"
                 +":::::::::::::::::::::::::::::::::::::::::::::::::::::: "
                 +"\n: "+ visitor.getName()
