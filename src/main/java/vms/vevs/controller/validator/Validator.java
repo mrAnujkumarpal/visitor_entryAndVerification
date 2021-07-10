@@ -257,9 +257,9 @@ public class Validator extends ValidatorHelper {
         }
 
 
-       /* if (!otpService.isValidOTP(visitorOTP, visitorEmail, mobileNumber)) {
-            validateMessage.add("Please provide a valid OTP, Check your mailbox.");
-        }*/
+        if (!otpService.isValidOTP(visitorOTP, visitorEmail, mobileNumber)) {
+            validateMessage.add(messageSource.getMessage("error.visitor.otp.invalid"));
+        }
 
         return validateMessage;
     }

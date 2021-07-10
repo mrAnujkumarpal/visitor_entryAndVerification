@@ -10,10 +10,10 @@ public interface EmployeeRepository extends JpaRepository<Employee,Long> {
     Employee findByName(String name);
 
 
-    Employee findByEmployeeCodeAndEnable(String employeeCode, boolean enabled);
+    Employee findByEmployeeCodeAndEnable(String employeeCode, boolean enable);
 
 
-    Employee findByEmailAndPasswordAndEnable(String email, String password, boolean enabled);
+   // Employee findByEmailIdAndPasswordAndEnable(String emailId, String password, boolean enable);
 
 
 

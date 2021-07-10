@@ -6,13 +6,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import vms.vevs.common.exception.VmsException;
@@ -27,7 +25,6 @@ import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.repo.RoleRepository;
 import vms.vevs.security.JwtTokenProvider;
 import vms.vevs.service.UserService;
-import vms.vevs.service.impl.UserServiceImpl;
 
 import javax.validation.Valid;
 import java.util.Collections;
@@ -82,7 +79,11 @@ public class UserController {
     @GetMapping(value = "all")
     public HttpResponse<?> listAllUsers(@RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<List<Users>> response = new HttpResponse<>();
-        response.setResponseObject(userService.findAllUsers());
+        List<Users> usersList = userService.findAllUsers();
+        for (Users list : usersList) {
+            list.setPassword(StringUtils.EMPTY);
+        }
+        response.setResponseObject(usersList);
         return response;
     }
 
@@ -91,8 +92,9 @@ public class UserController {
     public HttpResponse<?> getUser(@PathVariable("id") long id, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Fetching User with id {}", id);
         HttpResponse<Users> response = new HttpResponse<>();
-
-        response.setResponseObject(userService.findById(id));
+        Users user = userService.findById(id);
+        user.setPassword(StringUtils.EMPTY);
+        response.setResponseObject(user);
         return response;
     }
 
@@ -107,11 +109,11 @@ public class UserController {
                 .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
 
         user.setRoles(Collections.singleton(userRole));
-        List<String> validationMsgList = new Validator().validateUser(user,messageSource);
+        List<String> validationMsgList = new Validator().validateUser(user, messageSource);
         if (!validationMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validationMsgList);
         }
-        Users savedUser=userService.saveUser(user, loggedInUserId);
+        Users savedUser = userService.saveUser(user, loggedInUserId);
         savedUser.setPassword(StringUtils.EMPTY);
         response.setResponseObject(savedUser);
         return response;
@@ -125,8 +127,9 @@ public class UserController {
         HttpResponse<Users> response = new HttpResponse<>();
         Users currentUser = userService.findById(id);
 
-
-        response.setResponseObject(userService.updateUser(currentUser, loggedInUserId));
+        Users updatedUser = userService.updateUser(currentUser, loggedInUserId);
+        updatedUser.setPassword(StringUtils.EMPTY);
+        response.setResponseObject(updatedUser);
         return response;
     }
 
