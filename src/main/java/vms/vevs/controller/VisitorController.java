@@ -12,6 +12,7 @@ import vms.vevs.entity.common.AppOTP;
 import vms.vevs.entity.virtualObject.HttpResponse;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
+import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.service.AppOTPService;
 import vms.vevs.service.VisitorService;
 
@@ -28,6 +29,9 @@ public class VisitorController {
     @Autowired
     AppOTPService otpService;
 
+    @Autowired
+    MessageByLocaleService messageSource;
+
     @RequestMapping(value = "all", method = RequestMethod.GET)
     public HttpResponse<?> listAllVisitor() {
         HttpResponse<List<Visitor>> response = new HttpResponse<>();
@@ -42,11 +46,11 @@ public class VisitorController {
 
     @PostMapping(value = "public/create")
     @ApiImplicitParams({ @ApiImplicitParam(name = "loggedInUserId") })
-    public HttpResponse<?> createVisitor(@RequestBody VisitorVO request, UriComponentsBuilder ucBuilder) {
+    public HttpResponse<?> newVisitor(@RequestBody VisitorVO request, UriComponentsBuilder ucBuilder) {
         HttpResponse<Visitor> response = new HttpResponse<>();
         logger.info("Creating User : {}", request);
 
-        List<String> validateMsgList = new Validator().validateVisitor(request);
+        List<String> validateMsgList = new Validator().validateVisitor(request,messageSource);
         if (!validateMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validateMsgList);
         }
@@ -66,7 +70,7 @@ public class VisitorController {
     @PutMapping(value = "update")
     public HttpResponse<?> updateVisitor(@RequestBody Visitor visitor, UriComponentsBuilder ucBuilder, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<Visitor> response = new HttpResponse<>();
-        List<String> validationMsgList = new Validator().updateVisitor(visitor);
+        List<String> validationMsgList = new Validator().updateVisitor(visitor,messageSource);
         if (!validationMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validationMsgList);
         }

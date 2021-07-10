@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.employee.Employee;
 import vms.vevs.entity.virtualObject.HttpResponse;
+import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.service.EmployeeService;
 
 import java.util.List;
@@ -21,6 +22,8 @@ public class EmployeeController {
     @Autowired
     EmployeeService employeeService;
 
+    @Autowired
+    MessageByLocaleService messageSource;
 
     @GetMapping(value = "all", produces = "application/json")
     public HttpResponse<?> listAllEmployee(@RequestHeader("loggedInUserId") Long loggedInUserId) {
@@ -51,7 +54,7 @@ public class EmployeeController {
     public HttpResponse<?> createEmployee(@RequestBody Employee emp, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Creating employee : {}", emp);
         HttpResponse<Employee> response = new HttpResponse<>();
-        List<String> validationMsgList = new Validator().createEmployee(emp);
+        List<String> validationMsgList = new Validator().createEmployee(emp,messageSource);
         if (!validationMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validationMsgList);
         }
@@ -64,7 +67,7 @@ public class EmployeeController {
     public HttpResponse<?> updateEmployee(@RequestBody Employee emp, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Updating employee with id {}", emp);
         HttpResponse<Employee> response = new HttpResponse<>();
-        List<String> validationMsgList = new Validator().updateEmployee(emp);
+        List<String> validationMsgList = new Validator().updateEmployee(emp,messageSource);
         if (!validationMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validationMsgList);
         }

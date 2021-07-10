@@ -6,6 +6,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import vms.vevs.common.util.VmsConstants;
+import vms.vevs.entity.common.VMSEnum;
+import vms.vevs.entity.visitor.Visitor;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -31,6 +33,25 @@ public class EmailServiceImpl implements EmailService {
         javaMailSender.send(msg);
     }
 
+    @Async
+    public void sendEmailToHostEmployee(Visitor visitor) {
+
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(visitor.getHostEmployee().getEmailId());
+        msg.setFrom(VmsConstants.MAIL_SENDER);
+        msg.setSubject(VmsConstants.APPLICATION.concat(visitor.getPurposeOfVisit().concat(" with ").concat(visitor.getName())));
+        msg.setText("Dear " +visitor.getHostEmployee().getName() +", \n\n"
+                +":::::::::::::::::::::::::::::::::::::::::::::::::::::: "
+                +"\n: "+ visitor.getName()
+                +"\n: "+ visitor.getVisitorEmail()
+                +"\n: "+ visitor.getMobileNumber()
+                +"\n:\n: "+ visitor.getPurposeOfVisit()
+                +"\n:\n:\n:"+ VMSEnum.VISITOR_STATUS.CHECK_IN.name()+" - "+ visitor.getCreatedOn()
+                +"\n:\n::::::::::::::::::::::::::::::::::::::::::::::::::::: "
+                +"\n\n\n With Warm Regards "
+                +"\n Anuj Kumar Pal \n +91 8095446907 \n \n");
+        javaMailSender.send(msg);
+    }
     /*
     public void sendEmailWithAttachment(EMail mail) throws MessagingException, IOException {
         MimeMessage msg = javaMailSender.createMimeMessage();

@@ -9,6 +9,14 @@ public interface EmployeeRepository extends JpaRepository<Employee,Long> {
 
     Employee findByName(String name);
 
+
+    Employee findByEmployeeCodeAndEnable(String employeeCode, boolean enabled);
+
+
+    Employee findByEmailAndPasswordAndEnable(String email, String password, boolean enabled);
+
+
+
     /*List<Employee> findByEmailAddressAndLastname(Employee emailAddress, String lastname);
 
     // Enables the distinct flag for the query

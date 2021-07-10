@@ -2,6 +2,7 @@ package vms.vevs.controller;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import vms.vevs.common.exception.VmsException;
+import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.common.Role;
 import vms.vevs.entity.common.RoleName;
 import vms.vevs.entity.employee.Users;
@@ -105,8 +107,13 @@ public class UserController {
                 .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
 
         user.setRoles(Collections.singleton(userRole));
-
-        response.setResponseObject(userService.saveUser(user, loggedInUserId));
+        List<String> validationMsgList = new Validator().validateUser(user,messageSource);
+        if (!validationMsgList.isEmpty()) {
+            return new HttpResponse().errorResponse(validationMsgList);
+        }
+        Users savedUser=userService.saveUser(user, loggedInUserId);
+        savedUser.setPassword(StringUtils.EMPTY);
+        response.setResponseObject(savedUser);
         return response;
     }
 

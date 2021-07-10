@@ -4,6 +4,7 @@ import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.common.util.VmsConstants;
 import vms.vevs.entity.common.Location;
@@ -14,12 +15,16 @@ import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
 import vms.vevs.repo.EmployeeRepository;
 import vms.vevs.repo.LocationRepository;
+import vms.vevs.repo.UserRepository;
 import vms.vevs.repo.VisitorRepository;
 import vms.vevs.service.AppOTPService;
 
 import java.util.ArrayList;
 import java.util.List;
-@Component
+import java.util.Objects;
+import java.util.Optional;
+
+@Service
 public class Validator extends ValidatorHelper {
 
     @Autowired
@@ -34,19 +39,20 @@ public class Validator extends ValidatorHelper {
     @Autowired
     AppOTPService otpService;
 
+    @Autowired
+    UserRepository userRepository;
 
-
-    public List<String> createLocation(Location location,MessageByLocaleService messageSource) {
+    public List<String> createLocation(Location location, MessageByLocaleService messageSource) {
         List<String> validateMessage = new ArrayList<>();
 
         String locName = location.getName();
         String locContactNo = location.getLocationContactNo();
-        String country=location.getCountry();
+        String country = location.getCountry();
         locName = locName.trim();
         locContactNo = locContactNo.trim();
-        country=country.trim();
+        country = country.trim();
         if (StringUtils.isEmpty(locName) || StringUtils.isEmpty(locContactNo) || StringUtils.isEmpty(country)) {
-            validateMessage.add(messageSource.getMessage("all.fields.required"));
+            validateMessage.add(messageSource.getMessage("error.location.all.fields.required"));
 
         }
         if (!validateMinMaxLengthOfStr(locName, 3, 20)) {
@@ -64,7 +70,7 @@ public class Validator extends ValidatorHelper {
         return validateMessage;
     }
 
-    public List<String> updateLocation(Location location,MessageByLocaleService messageSource) {
+    public List<String> updateLocation(Location location, MessageByLocaleService messageSource) {
         List<String> validateMessage = new ArrayList<>();
         Long locId = location.getId();
         if (null == locId) {
@@ -75,45 +81,55 @@ public class Validator extends ValidatorHelper {
         if (null == locationFromDB) {
             validateMessage.add("Please provide a valid location id to update location.");
         }
-        createLocation(location,messageSource);
+        createLocation(location, messageSource);
         return validateMessage;
     }
 
-    public List<String> validateUser(Users user) {
+    public List<String> validateUser(Users user, MessageByLocaleService messageSource) {
         List<String> validateMessage = new ArrayList<>();
+
+        String name = user.getName();
+        String email = user.getEmail();
         String username = user.getUsername();
         String mobileNo = user.getMobileNo();
         String password = user.getPassword();
+
+        name = name.trim();
+        email = email.trim();
         username = username.trim();
         mobileNo = mobileNo.trim();
         password = password.trim();
 
-        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(mobileNo) || StringUtils.isEmpty(password)) {
 
-            validateMessage.add("All fields required.");
-            return validateMessage;
+        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(email) || StringUtils.isEmpty(username) || StringUtils.isEmpty(mobileNo) || StringUtils.isEmpty(password)) {
+            validateMessage.add(messageSource.getMessage("error.user.all.fields.required"));
         }
+
         if (!validateValueByRegex(username, VmsConstants.EMAIL_PATTERN)) {
             validateMessage.add("Please provide a valid email.");
         }
         if (!validateValueByRegex(mobileNo, VmsConstants.MOBILE_PATTERN)) {
             validateMessage.add("Please provide a valid phone number.");
         }
-        if (!validateValueByRegex(mobileNo, VmsConstants.PASSWORD_PATTERN)) {
+    /*    if (!validateValueByRegex(mobileNo, VmsConstants.PASSWORD_PATTERN)) {
             String pass = "Password must contain at least one digit[0 - 9]."
                     + "Password must contain at least one lowercase Latin character[ a - z]."
                     + "Password must contain at least one uppercase Latin character[A - Z]."
                     + "Password must contain at least one special character like ! @ # &()."
                     + "Password must contain a length of at least 6 characters and a maximum of 10 characters.";
             validateMessage.add(pass);
-        }
+        }*/
+        Optional<Users> users= userRepository.findByUsernameOrEmail(username,email);
+        if(null!=users ){
 
+            validateMessage.add(messageSource.getMessage("error.user.already.exist"));
+        }
 
         return validateMessage;
     }
 
 
-    public List<String> createEmployee(Employee employee) {
+    public List<String> createEmployee(Employee employee,MessageByLocaleService messageSource) {
         List<String> validateMessage = new ArrayList<>();
 
         String employeeName = employee.getName();
@@ -125,11 +141,11 @@ public class Validator extends ValidatorHelper {
         mobileNumber = mobileNumber.trim();
         designation = designation.trim();
         emailId = emailId.trim();
+
         if (StringUtils.isEmpty(employeeCode) || StringUtils.isEmpty(mobileNumber)
                 || StringUtils.isEmpty(designation) || StringUtils.isEmpty(emailId)
                 || StringUtils.isEmpty(employeeName)) {
-
-            validateMessage.add("All fields required.");
+            validateMessage.add(messageSource.getMessage("error.employee.all.fields.required"));
             return validateMessage;
         }
         if (!validateMinMaxLengthOfStr(employeeName, 3, 20)) {
@@ -150,10 +166,15 @@ public class Validator extends ValidatorHelper {
         if (!validateMinMaxLengthOfStr(employeeCode, 3, 10)) {
             validateMessage.add("Employee code contains only 3 - 10 characters.");
         }
+        //isEmployeeCode Exist
+        Employee emp=employeeRepository.findByEmployeeCodeAndEnable(employeeCode,true);
+        if(emp!=null){
+            validateMessage.add(messageSource.getMessage("error.employee.exist.employeeCode"));
+        }
         return validateMessage;
     }
 
-    public List<String> updateEmployee(Employee emp) {
+    public List<String> updateEmployee(Employee emp,MessageByLocaleService messageSource) {
         List<String> validateMessage = new ArrayList<>();
 
         Long empId = emp.getId();
@@ -165,12 +186,12 @@ public class Validator extends ValidatorHelper {
         if (null == empFromDB) {
             validateMessage.add("Please provide a valid employee id to update employee.");
         }
-        createEmployee(emp);
+        createEmployee(emp,messageSource);
         return validateMessage;
     }
 
 
-    public List<String> validateVisitor(VisitorVO visitor) {
+    public List<String> validateVisitor(VisitorVO visitor, MessageByLocaleService messageSource) {
         List<String> validateMessage = new ArrayList<>();
 
         String visitorName = visitor.getVisitorName();
@@ -196,9 +217,9 @@ public class Validator extends ValidatorHelper {
         if (StringUtils.isEmpty(visitorName) || StringUtils.isEmpty(mobileNumber)
                 || StringUtils.isEmpty(visitorEmail) || StringUtils.isEmpty(visitorAddress)
                 || StringUtils.isEmpty(purposeOfVisit) || StringUtils.isEmpty(visitorImage)
-                || StringUtils.isEmpty(visitorOTP)) {
-
-            validateMessage.add("All fields required.");
+                || StringUtils.isEmpty(visitorOTP)
+                || Objects.isNull(hostEmployeeId) || Objects.isNull(locationId)) {
+            validateMessage.add(messageSource.getMessage("error.visitor.all.fields.required"));
             return validateMessage;
         }
         if (!validateMinMaxLengthOfStr(visitorName, 3, 20)) {
@@ -213,23 +234,37 @@ public class Validator extends ValidatorHelper {
         if (!validateValueByRegex(mobileNumber, VmsConstants.MOBILE_PATTERN)) {
             validateMessage.add("Please provide a valid phone number.");
         }
-        if (!validateMinMaxLengthOfStr(visitorOTP, 5, 30)) {
-            validateMessage.add("OTP contains only 5 - 30 characters.");
+        if (!validateMinMaxLengthOfStr(visitorOTP, 6, 6)) {
+            validateMessage.add("OTP contains only 6 characters.");
         }
-        if (!validateMinMaxLengthOfStr(purposeOfVisit, 3, 10)) {
+        if (!EnumUtils.isValidEnum(VMSEnum.PURPOSE_OF_VISIT.class, purposeOfVisit)) {
+            validateMessage.add(messageSource.getMessage("error.visitor.invalid.visitorPurpose"));
+        }
+       /* if (!validateMinMaxLengthOfStr(purposeOfVisit, 3, 10)) {
             validateMessage.add("Purpose of visit contains only 3 - 10 characters.");
+        }*/
+        if (!validateMinMaxLengthOfStr(visitorAddress, 5, 30)) {
+            validateMessage.add("Address contains only 5 - 30 characters.");
         }
-        if (!validateMinMaxLengthOfStr(visitorAddress, 3, 50)) {
-            validateMessage.add("Address contains only 3 - 50 characters.");
+
+        Employee hostEmployee = employeeRepository.getById(hostEmployeeId);
+        if (hostEmployee == null) {
+            validateMessage.add(messageSource.getMessage("error.visitor.na.hostEmployee"));
         }
-        if (!otpService.isValidOTP(visitorOTP, visitorEmail, mobileNumber)) {
+
+        if (!(hostEmployee.getCurrentLocation().getId() == locationId) || !hostEmployee.isEnable()) {
+            validateMessage.add(messageSource.getMessage("error.visitor.na.hostEmployee"));
+        }
+
+
+       /* if (!otpService.isValidOTP(visitorOTP, visitorEmail, mobileNumber)) {
             validateMessage.add("Please provide a valid OTP, Check your mailbox.");
-        }
+        }*/
 
         return validateMessage;
     }
 
-    public List<String> updateVisitor(Visitor visitor) {
+    public List<String> updateVisitor(Visitor visitor, MessageByLocaleService messageSource) {
         List<String> validateMessage = new ArrayList<>();
         Long visitorId = visitor.getId();
         if (null == visitorId) {
@@ -247,5 +282,33 @@ public class Validator extends ValidatorHelper {
         return validateMessage;
     }
 
+    public List<String> createUser(Users user, MessageByLocaleService messageSource) {
+        List<String> validateMessage = new ArrayList<>();
+
+        String name = user.getName();
+        String email = user.getEmail();
+        String username = user.getUsername();
+        String mobileNo = user.getMobileNo();
+        String password = user.getPassword();
+
+        name = user.getName().trim();
+        email = user.getEmail().trim();
+        username = user.getUsername().trim();
+        mobileNo = user.getMobileNo().trim();
+        password = user.getPassword().trim();
+        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(email) || StringUtils.isEmpty(username) || StringUtils.isEmpty(mobileNo) || StringUtils.isEmpty(password)) {
+            validateMessage.add(messageSource.getMessage("error.user.all.fields.required"));
+        }
+       Optional<Users> users= userRepository.findByUsernameOrEmail(username,email);
+        if(null!=users){
+            validateMessage.add(messageSource.getMessage("error.user.already.exist"));
+        }
+
+
+
+        return validateMessage;
+    }
+
     /**/
 }
+

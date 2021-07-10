@@ -24,10 +24,10 @@ public class Users extends BaseEntity {
     private String userImage;
     private Long locationId;
 
-    @JsonIgnore
+
     private String email;
 
-    @JsonIgnore
+
     private String password;
 
 

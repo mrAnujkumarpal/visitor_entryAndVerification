@@ -10,6 +10,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import vms.vevs.common.exception.JwtTokenMissingException;
+import vms.vevs.common.util.VmsConstants;
 import vms.vevs.entity.virtualObject.HttpResponse;
 
 import javax.servlet.FilterChain;
@@ -35,23 +36,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String loggedInUserId = request.getHeader("loggedInUserId");
-            System.out.println("loggedInUserId :: " + loggedInUserId);
-            Long userid=Long.parseLong(loggedInUserId);
+
+            Long userFromHeader = 0L;
+            if(!StringUtils.isEmpty(loggedInUserId)){
+                userFromHeader=Long.parseLong(loggedInUserId);
+            }
+
 
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                Long userId = tokenProvider.getUserIdFromJWT(jwt);
+                logger.info("inside if line 48 ");
+                Long userFromToken = tokenProvider.getUserIdFromJWT(jwt);
                 UsernamePasswordAuthenticationToken authentication = null;
-                if (userid.equals(userId)){
+                if (userFromHeader.equals(userFromToken)){
                     /*
                     Note that you could also encode the user's username and roles inside JWT claims
                     and create the UserDetails object by parsing those claims from the JWT.
                     That would avoid the following database hit. It's completely up to you.
                  */
-                    UserDetails userDetails = customUserDetailsService.loadUserById(userId);
+                    UserDetails userDetails = customUserDetailsService.loadUserById(userFromHeader);
                     authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                }else{
+                    logger.info("inside else 62");
                 }
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
@@ -66,6 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
             //  throw new JwtTokenMissingException("JWT token is missing from header");
+
         }
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);

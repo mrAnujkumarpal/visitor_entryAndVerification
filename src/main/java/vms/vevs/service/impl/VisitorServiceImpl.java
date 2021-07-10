@@ -1,7 +1,10 @@
 package vms.vevs.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vms.vevs.common.notification.EmailService;
 import vms.vevs.common.util.VmsUtils;
 import vms.vevs.entity.common.VMSEnum;
 import vms.vevs.entity.virtualObject.VisitorVO;
@@ -11,6 +14,7 @@ import vms.vevs.repo.EmployeeRepository;
 import vms.vevs.repo.LocationRepository;
 import vms.vevs.repo.VisitorImageRepository;
 import vms.vevs.repo.VisitorRepository;
+import vms.vevs.security.JwtAuthenticationFilter;
 import vms.vevs.service.VisitorService;
 
 import javax.transaction.Transactional;
@@ -26,6 +30,8 @@ import java.util.stream.Stream;
 @Transactional
 public class VisitorServiceImpl implements VisitorService {
 
+    private static final Logger logger = LoggerFactory.getLogger(VisitorServiceImpl.class);
+
     @Autowired
     VisitorRepository visitorRepository;
 
@@ -37,6 +43,9 @@ public class VisitorServiceImpl implements VisitorService {
 
     @Autowired
     LocationRepository locRepository;
+
+    @Autowired
+    EmailService emailService;
 
     @Override
     public Visitor newVisitor(VisitorVO newVisitor) {
@@ -57,9 +66,17 @@ public class VisitorServiceImpl implements VisitorService {
         visitorImage.setVisitorImage(newVisitor.getVisitorImage());
         imageRepository.save(visitorImage);
 
-        return visitorRepository.save(visitor);
-
+        Visitor newlyAddedVisitor= visitorRepository.save(visitor);
+        notifyToHostEmployee(newlyAddedVisitor);
+        return newlyAddedVisitor;
     }
+
+    private void notifyToHostEmployee(Visitor newlyAddedVisitor) {
+        emailService.sendEmailToHostEmployee(newlyAddedVisitor);
+    }
+
+
+
 
     @Override
     public List<Visitor> allVisitors() {
