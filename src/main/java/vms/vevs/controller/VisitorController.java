@@ -132,22 +132,6 @@ public class VisitorController {
         return response;
     }
 
-    @GetMapping(value = "view/feedback/{visitorId}")
-    public HttpResponse<?> viewVisitorFeedback(@PathVariable("visitorId") long visitorId,
-                                       UriComponentsBuilder ucBuilder, @RequestHeader("loggedInUserId") Long loggedInUserId) {
-        HttpResponse<List<VisitorFeedback> > response = new HttpResponse<>();
 
-        response.setResponseObject(visitorService.getVisitorAllFeedback(visitorId));
-        return response;
-    }
-
-    @PostMapping(value = "feedback")
-    public HttpResponse<?> visitorFeedback(@RequestBody VisitorFeedback feedback,
-                                           UriComponentsBuilder ucBuilder,
-                                           @RequestHeader("loggedInUserId") Long loggedInUserId) {
-        HttpResponse<VisitorFeedback> response = new HttpResponse<>();
-        response.setResponseObject(visitorService.createVisitorFeedback(feedback));
-        return response;
-    }
 
 }

@@ -12,6 +12,7 @@ import vms.vevs.entity.common.VMSEnum;
 import vms.vevs.entity.employee.Users;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
+import vms.vevs.entity.visitor.VisitorFeedback;
 import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.repo.LocationRepository;
 import vms.vevs.repo.UserRepository;
@@ -42,7 +43,7 @@ public class Validator extends ValidatorHelper {
     @Autowired
     MessageByLocaleService messageSource;
 
-    public List<String> createLocation(Location location, MessageByLocaleService messageSource) {
+    public List<String> createLocation(Location location) {
         List<String> validateMessage = new ArrayList<>();
 
         String locName = location.getName();
@@ -70,7 +71,7 @@ public class Validator extends ValidatorHelper {
         return validateMessage;
     }
 
-    public List<String> updateLocation(Location location, MessageByLocaleService messageSource) {
+    public List<String> updateLocation(Location location) {
         List<String> validateMessage = new ArrayList<>();
         Long locId = location.getId();
         if (null == locId) {
@@ -81,7 +82,7 @@ public class Validator extends ValidatorHelper {
         if (null == locationFromDB) {
             validateMessage.add("Please provide a valid location id to update location.");
         }
-        createLocation(location, messageSource);
+        createLocation(location);
         return validateMessage;
     }
 
@@ -233,11 +234,11 @@ public class Validator extends ValidatorHelper {
         String mobileNo = user.getMobileNo();
         String password = user.getPassword();
 
-        name = user.getName().trim();
-        email = user.getEmail().trim();
-        username = user.getUsername().trim();
-        mobileNo = user.getMobileNo().trim();
-        password = user.getPassword().trim();
+        name = name.trim();
+        email = email.trim();
+        username = username.trim();
+        mobileNo = mobileNo.trim();
+        password = password.trim();
         if (StringUtils.isEmpty(name) || StringUtils.isEmpty(email) || StringUtils.isEmpty(username) || StringUtils.isEmpty(mobileNo) || StringUtils.isEmpty(password)) {
             validateMessage.add(messageSource.getMessage("error.user.all.fields.required"));
         }
@@ -247,6 +248,26 @@ public class Validator extends ValidatorHelper {
         }
 
 
+
+        return validateMessage;
+    }
+
+    public List<String> createFeedback(VisitorFeedback feedback) {
+        List<String> validateMessage = new ArrayList<>();
+        Long visitorId=feedback.getVisitorId();
+
+        String remarks=feedback.getRemarkPoints();
+        String finalFeedback=feedback.getFeedback();
+
+        remarks = remarks.trim();
+        finalFeedback = finalFeedback.trim();
+
+        if (!validateMinMaxLengthOfStr(remarks, 6, 16)) {
+            validateMessage.add(messageSource.getMessage("error.feedback.remarks.length", new Object[] {6, 16}));
+        }
+        if (!validateMinMaxLengthOfStr(finalFeedback, 6, 400)) {
+            validateMessage.add(messageSource.getMessage("error.feedback.finalFeedback.length", new Object[] {6, 400}));
+        }
 
         return validateMessage;
     }

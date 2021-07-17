@@ -28,12 +28,13 @@ public class LocationController {
     @Autowired
     MessageByLocaleService messageSource;
 
-
+    @Autowired
+    Validator validator;
 
     @PostMapping(value = "create", produces = MediaType.APPLICATION_JSON_VALUE)
     public HttpResponse<?> createLocation(@RequestBody Location location,@RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<Location> response = new HttpResponse<>();
-        List<String> validateLocation = new Validator().createLocation(location,messageSource);
+        List<String> validateLocation = validator.createLocation(location);
         if (!validateLocation.isEmpty()) {
             return new HttpResponse().errorResponse(validateLocation);
         }
@@ -45,7 +46,7 @@ public class LocationController {
     public HttpResponse<?> updateLocation(@RequestBody Location location,@RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<Location> response = new HttpResponse<>();
 
-        List<String> validateMsgList = new Validator().updateLocation(location,messageSource);
+        List<String> validateMsgList = validator.updateLocation(location);
         if (!validateMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validateMsgList);
         }

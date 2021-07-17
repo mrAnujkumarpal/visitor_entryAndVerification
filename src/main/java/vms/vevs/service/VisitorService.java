@@ -23,9 +23,5 @@ public interface VisitorService {
 
     List<Visitor> todayVisitorList(Long currentLocId);
 
-    VisitorFeedback getVisitorFeedback(Long visitorId);
 
-    List<VisitorFeedback> getVisitorAllFeedback(Long visitorId);
-
-    VisitorFeedback createVisitorFeedback(VisitorFeedback feedback);
 }

@@ -130,20 +130,9 @@ public class VisitorServiceImpl implements VisitorService {
         return result;
     }
 
-    @Override
-    public VisitorFeedback getVisitorFeedback(Long visitorId) {
-        return feedbackRepository.findByVisitorId(visitorId);
-    }
 
-    @Override
-    public List<VisitorFeedback> getVisitorAllFeedback(Long visitorId) {
-        return feedbackRepository.findAllByVisitorId(visitorId);
-    }
 
-    @Override
-    public VisitorFeedback createVisitorFeedback(VisitorFeedback feedback) {
-        return feedbackRepository.save(feedback);
-    }
+
 
 
 }
