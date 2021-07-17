@@ -11,6 +11,7 @@ import vms.vevs.service.UserService;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -68,6 +69,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isUserExist(Users user) {
         return userRepository.existsById(user.getId());
+    }
+    @Override
+    public List<Users> employeesByLocationId(long locId) {
+
+        return findAllUsers().stream()
+                .filter(x -> (x.getBaseLocation().getId()).equals(locId))
+                .collect(Collectors.toList());
+
     }
 /*
     @Override

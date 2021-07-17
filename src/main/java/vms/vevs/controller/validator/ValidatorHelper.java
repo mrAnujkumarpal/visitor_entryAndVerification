@@ -1,11 +1,15 @@
 package vms.vevs.controller.validator;
 
 
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
+@Configurable
 public class ValidatorHelper {
 
 

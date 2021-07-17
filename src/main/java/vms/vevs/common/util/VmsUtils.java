@@ -16,7 +16,9 @@ public class VmsUtils {
     public static Integer createOTP(){
         return ThreadLocalRandom.current().nextInt(100000, 1000000);
     }
-
+    public static Timestamp addMinutesInCurrentTime( int min) {
+        return new Timestamp(Instant.now().toEpochMilli()+ TimeUnit.MINUTES.toMillis(min));
+    }
 
     public static Timestamp currentTime() {
         Calendar calendar=Calendar.getInstance();
@@ -24,9 +26,7 @@ public class VmsUtils {
         Timestamp ts =  new Timestamp(millis);
         return ts;
     }
-    public static Timestamp addMinutesInCurrentTime( int min) {
-        return new Timestamp(Instant.now().toEpochMilli()+ TimeUnit.MINUTES.toMillis(min));
-    }
+
     public static Timestamp todayBeginning() {
         Calendar day = Calendar.getInstance();
         day.setTimeInMillis(day.getTimeInMillis());

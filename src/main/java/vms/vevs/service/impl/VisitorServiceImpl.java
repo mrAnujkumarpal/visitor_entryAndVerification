@@ -1,5 +1,6 @@
 package vms.vevs.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,20 +10,15 @@ import vms.vevs.common.util.VmsUtils;
 import vms.vevs.entity.common.VMSEnum;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
+import vms.vevs.entity.visitor.VisitorFeedback;
 import vms.vevs.entity.visitor.VisitorImage;
-import vms.vevs.repo.EmployeeRepository;
-import vms.vevs.repo.LocationRepository;
-import vms.vevs.repo.VisitorImageRepository;
-import vms.vevs.repo.VisitorRepository;
-import vms.vevs.security.JwtAuthenticationFilter;
+import vms.vevs.repo.*;
 import vms.vevs.service.VisitorService;
 
 import javax.transaction.Transactional;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,8 +31,6 @@ public class VisitorServiceImpl implements VisitorService {
     @Autowired
     VisitorRepository visitorRepository;
 
-    @Autowired
-    EmployeeRepository empRepository;
 
     @Autowired
     VisitorImageRepository imageRepository;
@@ -45,7 +39,13 @@ public class VisitorServiceImpl implements VisitorService {
     LocationRepository locRepository;
 
     @Autowired
+    UserRepository userRepository;
+
+    @Autowired
     EmailService emailService;
+
+    @Autowired
+    VisitorFeedbackRepository feedbackRepository;
 
     @Override
     public Visitor newVisitor(VisitorVO newVisitor) {
@@ -60,12 +60,13 @@ public class VisitorServiceImpl implements VisitorService {
         visitor.setPurposeOfVisit(newVisitor.getPurposeOfVisit());
         visitor.setVisitorStatus(VMSEnum.VISITOR_STATUS.CHECK_IN.name());
         visitor.setLocation(locRepository.getById(newVisitor.getLocationId()));
-        visitor.setHostEmployee(empRepository.getById(newVisitor.getHostEmployeeId()));
-        VisitorImage visitorImage = new VisitorImage();
-        visitorImage.setVisitorCode(visitor.getVisitorCode());
-        visitorImage.setVisitorImage(newVisitor.getVisitorImage());
-        imageRepository.save(visitorImage);
-
+        visitor.setHostEmployee(userRepository.getById(newVisitor.getHostEmployeeId()));
+        if(StringUtils.isNotEmpty(newVisitor.getVisitorImage())) {
+            VisitorImage visitorImage = new VisitorImage();
+            visitorImage.setVisitorCode(visitor.getVisitorCode());
+            visitorImage.setVisitorImage(newVisitor.getVisitorImage());
+            imageRepository.save(visitorImage);
+        }
         Visitor newlyAddedVisitor= visitorRepository.save(visitor);
         notifyToHostEmployee(newlyAddedVisitor);
         return newlyAddedVisitor;
@@ -100,11 +101,49 @@ public class VisitorServiceImpl implements VisitorService {
 
     @Override
     public List<String> purposeOfVisit() {
-        return enumNames;
+        return  Stream.of(VMSEnum.PURPOSE_OF_VISIT.values())
+                        .map(Enum::name)
+                        .collect(Collectors.toList());
     }
-    List<String> enumNames = Stream.of(VMSEnum.PURPOSE_OF_VISIT.values())
-            .map(Enum::name)
-            .collect(Collectors.toList());
+
+    @Override
+    public List<Visitor> todayVisitorList() {
+        Timestamp today=VmsUtils.currentTime();
+        Timestamp from =VmsUtils.startOfTheDay(today);
+        Timestamp to =VmsUtils.endOfTheDay(today);
+        List<Visitor> vl=visitorRepository.findAllByCreatedOn(today);
+        return  visitorRepository.findAllByCreatedOnBetween(from,to);
+    }
+
+    @Override
+    public List<Visitor> todayVisitorList(Long currentLocId) {
+
+        List<Visitor> visitorList=todayVisitorList();
+        List<Visitor> result =new ArrayList<>();
+        if(!visitorList.isEmpty()) {
+
+             result = visitorList.stream()
+                     .filter(loc -> loc.getLocation().getId() ==currentLocId)
+                    .collect(Collectors.toList());
+
+        }
+        return result;
+    }
+
+    @Override
+    public VisitorFeedback getVisitorFeedback(Long visitorId) {
+        return feedbackRepository.findByVisitorId(visitorId);
+    }
+
+    @Override
+    public List<VisitorFeedback> getVisitorAllFeedback(Long visitorId) {
+        return feedbackRepository.findAllByVisitorId(visitorId);
+    }
+
+    @Override
+    public VisitorFeedback createVisitorFeedback(VisitorFeedback feedback) {
+        return feedbackRepository.save(feedback);
+    }
 
 
 }

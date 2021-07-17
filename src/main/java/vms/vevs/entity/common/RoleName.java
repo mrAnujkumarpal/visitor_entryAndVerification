@@ -5,5 +5,6 @@ package vms.vevs.entity.common;
  */
 public enum RoleName {
     ROLE_USER,
-    ROLE_ADMIN
+    ROLE_ADMIN,
+    ROLE_FRONT_DESK
 }

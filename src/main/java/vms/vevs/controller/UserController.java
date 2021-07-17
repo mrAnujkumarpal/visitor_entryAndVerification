@@ -52,6 +52,10 @@ public class UserController {
     @Autowired
     MessageByLocaleService messageSource;
 
+    @Autowired
+    Validator validator;
+
+
     @PostMapping("public/login")
     @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
     public HttpResponse<?> login(@Valid @RequestBody LoginRequest loginRequest) {
@@ -68,7 +72,7 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
         Users user = userService.findByUsername(loginRequest.getUsername()).orElseThrow(() ->
-                new UsernameNotFoundException(messageSource.getMessage("user.error.not.found")));
+                new UsernameNotFoundException(messageSource.getMessage("error.user.not.found")));
 
         Long loggedInUserId = user.getId();
         response.setResponseObject(new LoginResponse(jwt, loggedInUserId));
@@ -98,7 +102,7 @@ public class UserController {
         return response;
     }
 
-    @PostMapping(value = "create")
+    @PostMapping(value = "public/create")
     public HttpResponse<?> createUser(@RequestBody Users user, UriComponentsBuilder ucBuilder,
                                       @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Creating User : {}", user);
@@ -109,7 +113,7 @@ public class UserController {
                 .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
 
         user.setRoles(Collections.singleton(userRole));
-        List<String> validationMsgList = new Validator().validateUser(user, messageSource);
+        List<String> validationMsgList = validator.validateUser(user);
         if (!validationMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validationMsgList);
         }
@@ -130,6 +134,14 @@ public class UserController {
         Users updatedUser = userService.updateUser(currentUser, loggedInUserId);
         updatedUser.setPassword(StringUtils.EMPTY);
         response.setResponseObject(updatedUser);
+        return response;
+    }
+
+    @GetMapping(value = "public/employeesByLocationId/{locationId}",  produces = "application/json")
+    public HttpResponse<?> employeesByLocationId(@PathVariable("locationId") long locId, @RequestHeader("loggedInUserId") Long loggedInUserId) {
+        logger.info("Fetching User with location Id {}", locId);
+        HttpResponse<List<Users>> response = new HttpResponse<>();
+        response.setResponseObject(userService.employeesByLocationId(locId));
         return response;
     }
 

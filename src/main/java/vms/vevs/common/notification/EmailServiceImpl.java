@@ -37,7 +37,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendEmailToHostEmployee(Visitor visitor) {
 
         SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setTo(visitor.getHostEmployee().getEmailId());
+        msg.setTo(visitor.getHostEmployee().getEmail());
         msg.setFrom(VmsConstants.MAIL_SENDER);
         msg.setSubject(VmsConstants.APPLICATION.concat(visitor.getPurposeOfVisit().concat(" with ").concat(visitor.getName())));
 

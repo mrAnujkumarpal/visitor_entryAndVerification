@@ -1,6 +1,7 @@
 package vms.vevs.entity.common;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -21,14 +22,19 @@ public abstract class BaseEntity{
 
     private String name;
 
+    @JsonIgnore
     private Long createdBy;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Timestamp createdOn;
 
+
+    @JsonIgnore
     private Long modifiedBy;
 
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonIgnore
     private Timestamp modifiedOn;
 
     private boolean enable;

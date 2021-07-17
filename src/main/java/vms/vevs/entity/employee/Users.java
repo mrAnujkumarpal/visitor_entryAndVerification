@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 import vms.vevs.entity.common.BaseEntity;
+import vms.vevs.entity.common.Location;
 import vms.vevs.entity.common.Role;
 
 import javax.persistence.*;
@@ -22,13 +23,24 @@ public class Users extends BaseEntity {
     private String mobileNo;
 
     private String userImage;
-    private Long locationId;
-
 
     private String email;
-
-
     private String password;
+
+    private String employeeCode;
+
+    private String designation;
+
+
+
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    private Location baseLocation;
+
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    private Location currentLocation;
+
+
+
 
 
     @ManyToMany(fetch = FetchType.LAZY)

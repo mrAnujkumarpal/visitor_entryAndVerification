@@ -2,14 +2,13 @@ package vms.vevs.entity.visitor;
 
 import lombok.Getter;
 import lombok.Setter;
-import vms.vevs.entity.employee.Employee;
 import vms.vevs.entity.common.BaseEntity;
 import vms.vevs.entity.common.Location;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import vms.vevs.entity.employee.Users;
+
 import javax.persistence.*;
-import java.io.Serializable;
 
 @Entity
 @Getter
@@ -26,7 +25,7 @@ public class Visitor extends BaseEntity   {
     private String cardNoGivenToVisitor;
 
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-    private Employee hostEmployee;
+    private Users hostEmployee;
 
 
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)

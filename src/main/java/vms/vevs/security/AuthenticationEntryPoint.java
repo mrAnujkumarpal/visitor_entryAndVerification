@@ -3,7 +3,9 @@ package vms.vevs.security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import vms.vevs.entity.virtualObject.HttpResponse;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +26,8 @@ public class AuthenticationEntryPoint implements org.springframework.security.we
                          AuthenticationException e) throws IOException, ServletException {
        logger.info("sets AuthenticationEntryPoint");
         logger.error("Responding with unauthorized error. Message - {}", e.getMessage());
-        httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+         httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+
+
     }
 }

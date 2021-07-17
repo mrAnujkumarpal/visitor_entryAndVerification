@@ -2,6 +2,7 @@ package vms.vevs.service;
 
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
+import vms.vevs.entity.visitor.VisitorFeedback;
 
 import java.util.List;
 
@@ -17,4 +18,14 @@ public interface VisitorService {
     Visitor updateVisitor(Visitor visitor,Long userId);
 
     List<String> purposeOfVisit();
+
+    List<Visitor> todayVisitorList();
+
+    List<Visitor> todayVisitorList(Long currentLocId);
+
+    VisitorFeedback getVisitorFeedback(Long visitorId);
+
+    List<VisitorFeedback> getVisitorAllFeedback(Long visitorId);
+
+    VisitorFeedback createVisitorFeedback(VisitorFeedback feedback);
 }

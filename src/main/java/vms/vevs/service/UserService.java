@@ -21,4 +21,6 @@ public interface UserService {
     Optional<Users> findByUsernameOrEmail(String username, String email);
 
     boolean isUserExist(Users user);
+
+    List<Users> employeesByLocationId(long locId);
 }

@@ -3,17 +3,16 @@ package vms.vevs.controller.validator;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.common.util.VmsConstants;
 import vms.vevs.entity.common.Location;
 import vms.vevs.entity.common.VMSEnum;
-import vms.vevs.entity.employee.Employee;
 import vms.vevs.entity.employee.Users;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
-import vms.vevs.repo.EmployeeRepository;
+import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.repo.LocationRepository;
 import vms.vevs.repo.UserRepository;
 import vms.vevs.repo.VisitorRepository;
@@ -24,14 +23,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Service
+@Component
+@Configurable
 public class Validator extends ValidatorHelper {
 
     @Autowired
     LocationRepository locationRepository;
-
-    @Autowired
-    EmployeeRepository employeeRepository;
 
     @Autowired
     VisitorRepository visitorRepository;
@@ -41,6 +38,9 @@ public class Validator extends ValidatorHelper {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    MessageByLocaleService messageSource;
 
     public List<String> createLocation(Location location, MessageByLocaleService messageSource) {
         List<String> validateMessage = new ArrayList<>();
@@ -85,7 +85,7 @@ public class Validator extends ValidatorHelper {
         return validateMessage;
     }
 
-    public List<String> validateUser(Users user, MessageByLocaleService messageSource) {
+    public List<String> validateUser(Users user) {
         List<String> validateMessage = new ArrayList<>();
 
         String name = user.getName();
@@ -105,7 +105,7 @@ public class Validator extends ValidatorHelper {
             validateMessage.add(messageSource.getMessage("error.user.all.fields.required"));
         }
 
-        if (!validateValueByRegex(username, VmsConstants.EMAIL_PATTERN)) {
+        if (!validateValueByRegex(email, VmsConstants.EMAIL_PATTERN)) {
             validateMessage.add("Please provide a valid email.");
         }
         if (!validateValueByRegex(mobileNo, VmsConstants.MOBILE_PATTERN)) {
@@ -119,79 +119,21 @@ public class Validator extends ValidatorHelper {
                     + "Password must contain a length of at least 6 characters and a maximum of 10 characters.";
             validateMessage.add(pass);
         }*/
-        Optional<Users> users= userRepository.findByUsernameOrEmail(username,email);
-        if(null!=users ){
-
+        Optional<Users> isUserAvail= userRepository.findByUsernameOrEmail(username,email);
+        if(isUserAvail.isPresent() ){
             validateMessage.add(messageSource.getMessage("error.user.already.exist"));
         }
-
-        return validateMessage;
-    }
-
-
-    public List<String> createEmployee(Employee employee,MessageByLocaleService messageSource) {
-        List<String> validateMessage = new ArrayList<>();
-
-        String employeeName = employee.getName();
-        String employeeCode = employee.getEmployeeCode();
-        String mobileNumber = employee.getMobileNumber();
-        String designation = employee.getDesignation();
-        String emailId = employee.getEmailId();
-        employeeCode = employeeCode.trim();
-        mobileNumber = mobileNumber.trim();
-        designation = designation.trim();
-        emailId = emailId.trim();
-
-        if (StringUtils.isEmpty(employeeCode) || StringUtils.isEmpty(mobileNumber)
-                || StringUtils.isEmpty(designation) || StringUtils.isEmpty(emailId)
-                || StringUtils.isEmpty(employeeName)) {
-            validateMessage.add(messageSource.getMessage("error.employee.all.fields.required"));
-            return validateMessage;
-        }
-        if (!validateMinMaxLengthOfStr(employeeName, 3, 20)) {
-            validateMessage.add("Name contains only 3 - 20 characters.");
-        }
-        if (!validateValueByRegex(employeeName, VmsConstants.STRING_PATTERN)) {
-            validateMessage.add("Only String allowed in name.");
-        }
-        if (!validateValueByRegex(emailId, VmsConstants.EMAIL_PATTERN)) {
-            validateMessage.add("Please provide a valid email.");
-        }
-        if (!validateValueByRegex(mobileNumber, VmsConstants.MOBILE_PATTERN)) {
-            validateMessage.add("Please provide a valid phone number.");
-        }
-        if (!validateMinMaxLengthOfStr(designation, 5, 30)) {
-            validateMessage.add("Designation contains only 5 - 30 characters.");
-        }
-        if (!validateMinMaxLengthOfStr(employeeCode, 3, 10)) {
-            validateMessage.add("Employee code contains only 3 - 10 characters.");
-        }
         //isEmployeeCode Exist
-        Employee emp=employeeRepository.findByEmployeeCodeAndEnable(employeeCode,true);
+       /* Employee emp=employeeRepository.findByEmployeeCodeAndEnable(employeeCode,true);
         if(emp!=null){
             validateMessage.add(messageSource.getMessage("error.employee.exist.employeeCode"));
         }
-        return validateMessage;
-    }
-
-    public List<String> updateEmployee(Employee emp,MessageByLocaleService messageSource) {
-        List<String> validateMessage = new ArrayList<>();
-
-        Long empId = emp.getId();
-        if (null == empId) {
-            validateMessage.add("Please provide employee id to update location.");
-            return validateMessage;
-        }
-        Employee empFromDB = employeeRepository.getById(empId);
-        if (null == empFromDB) {
-            validateMessage.add("Please provide a valid employee id to update employee.");
-        }
-        createEmployee(emp,messageSource);
+*/
         return validateMessage;
     }
 
 
-    public List<String> validateVisitor(VisitorVO visitor, MessageByLocaleService messageSource) {
+    public List<String> validateVisitor(VisitorVO visitor) {
         List<String> validateMessage = new ArrayList<>();
 
         String visitorName = visitor.getVisitorName();
@@ -199,7 +141,7 @@ public class Validator extends ValidatorHelper {
         String mobileNumber = visitor.getMobileNumber();
         String visitorAddress = visitor.getVisitorAddress();
         String purposeOfVisit = visitor.getPurposeOfVisit(); //PURPOSE_OF_VISIT
-        String visitorImage = visitor.getVisitorImage();
+       // String visitorImage = visitor.getVisitorImage();
 
         Long hostEmployeeId = visitor.getHostEmployeeId();
         Long locationId = visitor.getLocationId();
@@ -211,12 +153,12 @@ public class Validator extends ValidatorHelper {
         mobileNumber = mobileNumber.trim();
         visitorAddress = visitorAddress.trim();
         purposeOfVisit = purposeOfVisit.trim();
-        visitorImage = visitorImage.trim();
+        //visitorImage = visitorImage.trim();
         visitorOTP = visitorOTP.trim();
 
         if (StringUtils.isEmpty(visitorName) || StringUtils.isEmpty(mobileNumber)
                 || StringUtils.isEmpty(visitorEmail) || StringUtils.isEmpty(visitorAddress)
-                || StringUtils.isEmpty(purposeOfVisit) || StringUtils.isEmpty(visitorImage)
+                || StringUtils.isEmpty(purposeOfVisit) || StringUtils.isEmpty(visitorName)
                 || StringUtils.isEmpty(visitorOTP)
                 || Objects.isNull(hostEmployeeId) || Objects.isNull(locationId)) {
             validateMessage.add(messageSource.getMessage("error.visitor.all.fields.required"));
@@ -247,7 +189,7 @@ public class Validator extends ValidatorHelper {
             validateMessage.add("Address contains only 5 - 30 characters.");
         }
 
-        Employee hostEmployee = employeeRepository.getById(hostEmployeeId);
+        Users hostEmployee = userRepository.getById(hostEmployeeId);
         if (hostEmployee == null) {
             validateMessage.add(messageSource.getMessage("error.visitor.na.hostEmployee"));
         }
@@ -257,14 +199,14 @@ public class Validator extends ValidatorHelper {
         }
 
 
-        if (!otpService.isValidOTP(visitorOTP, visitorEmail, mobileNumber)) {
+       /* if (!otpService.isValidOTP(visitorOTP, visitorEmail, mobileNumber)) {
             validateMessage.add(messageSource.getMessage("error.visitor.otp.invalid"));
-        }
+        }*/
 
         return validateMessage;
     }
 
-    public List<String> updateVisitor(Visitor visitor, MessageByLocaleService messageSource) {
+    public List<String> updateVisitor(Visitor visitor) {
         List<String> validateMessage = new ArrayList<>();
         Long visitorId = visitor.getId();
         if (null == visitorId) {
