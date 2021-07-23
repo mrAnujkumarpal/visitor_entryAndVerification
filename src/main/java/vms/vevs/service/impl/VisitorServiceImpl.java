@@ -31,7 +31,6 @@ public class VisitorServiceImpl implements VisitorService {
     @Autowired
     VisitorRepository visitorRepository;
 
-
     @Autowired
     VisitorImageRepository imageRepository;
 

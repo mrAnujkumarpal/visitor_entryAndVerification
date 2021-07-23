@@ -138,6 +138,7 @@ public class UserController {
     }
 
     @GetMapping(value = "public/employeesByLocationId/{locationId}",  produces = "application/json")
+    @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
     public HttpResponse<?> employeesByLocationId(@PathVariable("locationId") long locId, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Fetching User with location Id {}", locId);
         HttpResponse<List<Users>> response = new HttpResponse<>();
@@ -145,4 +146,28 @@ public class UserController {
         return response;
     }
 
+    @PostMapping("public/forgotPassword")
+    @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
+    public HttpResponse<?> forgotPassword(@RequestParam String email) {
+        HttpResponse<String> response = new HttpResponse<>();
+        List<String> validationMsgList = validator.validateEmailForResetPassword(email);
+        if (!validationMsgList.isEmpty()) {
+            return new HttpResponse().errorResponse(validationMsgList);
+        }
+        response.setResponseObject(userService.forgotPassword(email));
+        return response;
+    }
+
+    @PutMapping("/resetPassword")
+    @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
+    public HttpResponse<?> resetPassword(@RequestParam String token,
+                                         @RequestParam String password) {
+        HttpResponse<String> response = new HttpResponse<>();
+        List<String> validationMsgList = validator.validateResetPasswordToken(token);
+        if (!validationMsgList.isEmpty()) {
+            return new HttpResponse().errorResponse(validationMsgList);
+        }
+        response.setResponseObject(userService.resetPassword(token, password));
+        return response;
+    }
 }

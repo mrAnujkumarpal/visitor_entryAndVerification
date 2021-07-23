@@ -23,4 +23,8 @@ public interface UserService {
     boolean isUserExist(Users user);
 
     List<Users> employeesByLocationId(long locId);
+
+    String forgotPassword(String email);
+
+    String resetPassword(String token, String password);
 }

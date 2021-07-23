@@ -9,6 +9,7 @@ import vms.vevs.entity.common.Location;
 import vms.vevs.entity.common.Role;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,6 +32,9 @@ public class Users extends BaseEntity {
 
     private String designation;
 
+    private String token;
+
+    private Timestamp tokenCreationTime;
 
 
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)

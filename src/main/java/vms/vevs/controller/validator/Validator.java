@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import vms.vevs.common.util.VmsConstants;
+import vms.vevs.common.util.VmsUtils;
 import vms.vevs.entity.common.Location;
 import vms.vevs.entity.common.VMSEnum;
 import vms.vevs.entity.employee.Users;
@@ -19,6 +20,7 @@ import vms.vevs.repo.UserRepository;
 import vms.vevs.repo.VisitorRepository;
 import vms.vevs.service.AppOTPService;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -263,13 +265,43 @@ public class Validator extends ValidatorHelper {
         finalFeedback = finalFeedback.trim();
 
         if (!validateMinMaxLengthOfStr(remarks, 6, 16)) {
-            validateMessage.add(messageSource.getMessage("error.feedback.remarks.length", new Object[] {6, 16}));
+            validateMessage.add(messageSource.getMessage("error.feedback.remarks.length", new Object[] {6, 16} ));
         }
         if (!validateMinMaxLengthOfStr(finalFeedback, 6, 400)) {
             validateMessage.add(messageSource.getMessage("error.feedback.finalFeedback.length", new Object[] {6, 400}));
         }
 
         return validateMessage;
+    }
+
+    public List<String> validateResetPasswordToken(String token) {
+
+        List<String> validateMessage = new ArrayList<>();
+        Users user = userRepository.findByToken(token);
+        Timestamp tokenCreationDate = user.getTokenCreationTime();
+        if (isTokenExpired(tokenCreationDate)) {
+            validateMessage.add(messageSource.getMessage("error.user.reset.pwd.invalid.token"));
+        }
+        return validateMessage;
+    }
+
+
+
+    public List<String> validateEmailForResetPassword(String email) {
+        List<String> validateMessage = new ArrayList<>();
+
+        Optional<Users> userOptional = userRepository.findByEmail(email);
+        if (!userOptional.isPresent()) {
+            validateMessage.add(messageSource.getMessage("error.user.email.not.found", new Object[] {email}));
+        }
+        return validateMessage;
+    }
+
+
+    private boolean isTokenExpired(final Timestamp tokenCreationTime) {
+        Timestamp now= VmsUtils.currentTime();
+        Long differenceInMin=VmsUtils.timeDifferenceIn("MM",tokenCreationTime,now);
+        return differenceInMin >= VmsConstants.UPDATE_PASSWORD_TOKEN_EXPIRE_IN_MINUTES;
     }
 
     /**/

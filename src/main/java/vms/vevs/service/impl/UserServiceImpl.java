@@ -3,14 +3,17 @@ package vms.vevs.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import vms.vevs.common.util.VmsConstants;
 import vms.vevs.common.util.VmsUtils;
 import vms.vevs.entity.employee.Users;
 import vms.vevs.repo.UserRepository;
 import vms.vevs.service.UserService;
 
 import javax.transaction.Transactional;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,6 +81,40 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
 
     }
+
+    @Override
+    public String forgotPassword(String email) {
+
+            Optional<Users> userOptional = userRepository.findByEmail(email);
+            Users user = userOptional.get();
+            user.setToken(generateToken());
+            user.setTokenCreationTime(VmsUtils.currentTime());
+            user = userRepository.save(user);
+
+            return user.getToken();
+        }
+
+
+
+    @Override
+    public String resetPassword(String token, String password) {
+
+        Users user = userRepository.findByToken(token);
+        user.setToken(null);
+        user.setTokenCreationTime(null);
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+
+        return "Your password successfully updated.";
+    }
+
+    private String generateToken() {
+        StringBuilder token = new StringBuilder();
+
+        return token.append(UUID.randomUUID().toString())
+                .append(UUID.randomUUID().toString()).toString();
+    }
+
 /*
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {

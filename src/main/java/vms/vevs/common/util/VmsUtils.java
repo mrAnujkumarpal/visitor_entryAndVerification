@@ -1,8 +1,8 @@
 package vms.vevs.common.util;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Calendar;
-import java.sql.Timestamp;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +26,7 @@ public class VmsUtils {
         Timestamp ts =  new Timestamp(millis);
         return ts;
     }
+
 
     public static Timestamp todayBeginning() {
         Calendar day = Calendar.getInstance();
@@ -57,5 +58,26 @@ public class VmsUtils {
         day.set(Calendar.HOUR_OF_DAY, 23);
         Timestamp ts = new Timestamp(day.getTimeInMillis());
         return ts;
+    }
+
+    public static long timeDifferenceIn(String source, Timestamp oldTime, Timestamp currentTime) {
+        long differ = 0L;
+        long milliseconds1 = oldTime.getTime();
+        long milliseconds2 = currentTime.getTime();
+
+        long diff = milliseconds2 - milliseconds1;
+        source = source.toUpperCase();
+        if (source.equals("SS")) {
+            differ = diff / 1000;
+        } else if (source.equals("MM")) {
+            differ = diff / (60 * 1000);
+        } else if (source.equals("HH")) {
+            differ = diff / (60 * 60 * 1000);
+        } else if (source.equals("DD")) {
+            differ = diff / (24 * 60 * 60 * 1000);
+        }
+
+
+        return differ;
     }
 }

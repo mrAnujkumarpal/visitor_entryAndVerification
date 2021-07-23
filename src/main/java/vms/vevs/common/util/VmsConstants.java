@@ -8,6 +8,7 @@ public class VmsConstants {
     public static final String ORG_CODE="MRV";
     public static final String VMS_EMPTY= "";
     public static final long JWT_TOKEN_VALIDITY=5 * 60 * 60;
+    public static final long UPDATE_PASSWORD_TOKEN_EXPIRE_IN_MINUTES=30;
 
     public static final String ZERO_TO_NINE = "[0-9]";
     public static final String NUMBER_PATTERN = "^[0-9,.]+$";
