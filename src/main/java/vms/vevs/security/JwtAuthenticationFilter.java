@@ -46,7 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                logger.info("inside if line 48 ");
+
                 Long userFromToken = tokenProvider.getUserIdFromJWT(jwt);
                 UsernamePasswordAuthenticationToken authentication = null;
                 if (userFromHeader.equals(userFromToken)){

@@ -26,15 +26,13 @@ public class Users extends BaseEntity {
     private String userImage;
 
     private String email;
+
+    @JsonIgnore
     private String password;
 
     private String employeeCode;
 
     private String designation;
-
-    private String token;
-
-    private Timestamp tokenCreationTime;
 
 
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)

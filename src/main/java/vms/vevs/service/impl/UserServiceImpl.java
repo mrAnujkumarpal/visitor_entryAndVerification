@@ -1,16 +1,25 @@
 package vms.vevs.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vms.vevs.common.util.VmsConstants;
 import vms.vevs.common.util.VmsUtils;
+import vms.vevs.entity.common.Role;
+import vms.vevs.entity.employee.ResetPassword;
 import vms.vevs.entity.employee.Users;
+import vms.vevs.entity.virtualObject.IdentityAvailability;
+import vms.vevs.entity.virtualObject.UserVO;
+import vms.vevs.i18.MessageByLocaleService;
+import vms.vevs.repo.LocationRepository;
+import vms.vevs.repo.ResetPasswordRepository;
 import vms.vevs.repo.UserRepository;
 import vms.vevs.service.UserService;
 
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +35,15 @@ public class UserServiceImpl implements UserService {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    MessageByLocaleService messageSource;
+
+    @Autowired
+    ResetPasswordRepository resetPasswordRepository;
+
+    @Autowired
+    LocationRepository locRepository;
+
     @Override
     public Users findById(long id) {
         return userRepository.getById(id);
@@ -38,12 +56,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Users saveUser(Users user, Long loggedInUserId) {
+    public Users saveUser(UserVO userVO, Long loggedInUserId, Role userRole) {
+
+        Users user=new Users();
 
         user.setEnable(true);
+        user.setName(userVO.getName());
+        user.setEmail(userVO.getEmail());
+        user.setUsername(userVO.getUsername());
+        user.setMobileNo(userVO.getMobileNo());
+        user.setUserImage(userVO.getUserImage());
+        user.setDesignation(userVO.getDesignation());
+        user.setEmployeeCode(userVO.getEmployeeCode());
+
         user.setCreatedBy(loggedInUserId);
         user.setCreatedOn(VmsUtils.currentTime());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRoles(Collections.singleton(userRole));
+
+        user.setPassword(passwordEncoder.encode(userVO.getPassword()));
+        user.setBaseLocation(locRepository.getById(userVO.getBaseLocationId()));
+        user.setCurrentLocation(locRepository.getById(userVO.getCurrentLocationId()));
         return userRepository.save(user);
     }
 
@@ -55,6 +87,18 @@ public class UserServiceImpl implements UserService {
         dbUser.setModifiedOn(VmsUtils.currentTime());
         dbUser.setModifiedBy(userId);
         return userRepository.save(dbUser);
+    }
+
+    @Override
+    public IdentityAvailability checkUsernameAvailability(String username) {
+        Boolean isAvailable = !userRepository.existsByUsername(username);
+        return new IdentityAvailability(isAvailable);
+    }
+
+    @Override
+    public IdentityAvailability checkEmailAvailability(String email) {
+        Boolean isAvailable = !userRepository.existsByEmail(email);
+        return new IdentityAvailability(isAvailable);
     }
 
 
@@ -83,36 +127,57 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String forgotPassword(String email) {
+    public ResetPassword forgotPassword(String email) {
 
             Optional<Users> userOptional = userRepository.findByEmail(email);
-            Users user = userOptional.get();
-            user.setToken(generateToken());
-            user.setTokenCreationTime(VmsUtils.currentTime());
-            user = userRepository.save(user);
 
-            return user.getToken();
+            Users user = userOptional.get();
+            ResetPassword password=new ResetPassword();
+
+            password.setUserId(user.getId());
+            password.setUserEmail(user.getEmail());
+            password.setToken(generateToken());
+            password.setTokenCreationTime(VmsUtils.currentTime());
+           return resetPasswordRepository.save(password);
+
+
         }
 
 
 
     @Override
-    public String resetPassword(String token, String password) {
+    public ResetPassword resetPassword(ResetPassword resetPassword) {
 
-        Users user = userRepository.findByToken(token);
-        user.setToken(null);
-        user.setTokenCreationTime(null);
-        user.setPassword(passwordEncoder.encode(password));
+        String token = resetPassword.getToken();
+
+        ResetPassword resetPasswordFromDB = resetPasswordRepository.findByToken(token);
+
+        Optional<Users> userOptional = userRepository.findByEmail(resetPassword.getUserEmail());
+
+        Users user = userOptional.get();
+        user.setPassword(passwordEncoder.encode(resetPassword.getPassword()));
+        user.setEmail(resetPassword.getUserEmail());
         userRepository.save(user);
 
-        return "Your password successfully updated.";
+        resetPasswordRepository.deleteByUserEmail(user.getEmail());
+
+
+        resetPassword.setToken(StringUtils.EMPTY);
+        resetPassword.setTokenCreationTime(null);
+        resetPassword.setPassword(StringUtils.EMPTY);
+        resetPassword.setUserEmail(user.getEmail());
+        resetPassword.setMessage(messageSource.getMessage("success.user.password.update"));
+        return resetPassword;
+
     }
 
     private String generateToken() {
         StringBuilder token = new StringBuilder();
 
-        return token.append(UUID.randomUUID().toString())
-                .append(UUID.randomUUID().toString()).toString();
+        return token.append(VmsConstants.ORG_CODE.toString())
+                .append(UUID.randomUUID().toString())
+                .append(UUID.randomUUID().toString())
+                .append(VmsUtils.createOTP()).toString();
     }
 
 /*

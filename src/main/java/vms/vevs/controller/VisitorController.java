@@ -2,29 +2,25 @@ package vms.vevs.controller;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import vms.vevs.common.util.VmsUtils;
 import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.common.AppOTP;
-import vms.vevs.entity.common.Role;
-import vms.vevs.entity.common.VMSEnum;
+import vms.vevs.entity.common.RoleName;
 import vms.vevs.entity.employee.Users;
 import vms.vevs.entity.virtualObject.HttpResponse;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
-import vms.vevs.entity.visitor.VisitorFeedback;
-import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.service.AppOTPService;
 import vms.vevs.service.UserService;
 import vms.vevs.service.VisitorService;
 
-import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -119,16 +115,23 @@ public class VisitorController {
 
         Users user = userService.findById(loggedInUserId);
         Long currentLocId = user.getCurrentLocation().getId();
-        Set<Role> roles =user.getRoles();
+        String roleName = new VMSHelper().roleOfUser(user);
 
-        List<Visitor> todayVisitors = visitorService.todayVisitorList(currentLocId);
+        List<Visitor> visitorsList = new ArrayList<>();
+        if (StringUtils.equals(roleName, RoleName.FRONT_DESK.name())) {
+            visitorsList = visitorService.todayVisitorList(currentLocId);
+        } else if (StringUtils.equals(roleName, RoleName.USER.name())) {
+            visitorsList = visitorService.todayVisitorList(currentLocId);
 
-        //if loggeedIn user role is User only
-        List<Visitor>  result = todayVisitors.stream()
-                .filter(me -> me.getHostEmployee().getId() ==loggedInUserId)
-                .collect(Collectors.toList());
+            List<Visitor> result = visitorsList.stream()
+                    .filter(me -> me.getHostEmployee().getId() == loggedInUserId)
+                    .collect(Collectors.toList());
+            visitorsList = result;
+        } else if (StringUtils.equals(roleName, RoleName.ADMIN.name())) {
+            visitorsList = visitorService.todayVisitorList();
+        }
 
-        response.setResponseObject(todayVisitors);
+        response.setResponseObject(visitorsList);
         return response;
     }
 

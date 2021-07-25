@@ -18,4 +18,9 @@ public class VmsConstants {
     public static final String PASSWORD_PATTERN ="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{6,10}$";
 
 
+    public static final String HOURS="HH";
+    public static final String MINUTE="MM";
+    public static final String SECOND="SS";
+
+
 }

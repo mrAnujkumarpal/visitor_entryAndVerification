@@ -1,6 +1,10 @@
 package vms.vevs.service;
 
+import vms.vevs.entity.common.Role;
+import vms.vevs.entity.employee.ResetPassword;
 import vms.vevs.entity.employee.Users;
+import vms.vevs.entity.virtualObject.IdentityAvailability;
+import vms.vevs.entity.virtualObject.UserVO;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,10 +15,13 @@ public interface UserService {
 
     Optional<Users> findByUsername(String name);
 
-    Users saveUser(Users user,Long userId);
+    Users saveUser(UserVO user, Long userId, Role userRole);
 
     Users updateUser(Users user,Long userId);
 
+    IdentityAvailability checkUsernameAvailability(String username);
+
+    IdentityAvailability checkEmailAvailability(String email);
 
     List<Users> findAllUsers();
 
@@ -24,7 +31,7 @@ public interface UserService {
 
     List<Users> employeesByLocationId(long locId);
 
-    String forgotPassword(String email);
+    ResetPassword forgotPassword(String email);
 
-    String resetPassword(String token, String password);
+    ResetPassword resetPassword(ResetPassword resetPassword);
 }

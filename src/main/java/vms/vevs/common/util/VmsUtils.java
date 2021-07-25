@@ -9,13 +9,12 @@ import java.util.concurrent.TimeUnit;
 public class VmsUtils {
 
 
-    public static String visitorCode() {
+    public static String visitorCode() {return VmsConstants.ORG_CODE + System.currentTimeMillis(); }
 
-        return VmsConstants.ORG_CODE + System.currentTimeMillis();
-    }
     public static Integer createOTP(){
         return ThreadLocalRandom.current().nextInt(100000, 1000000);
     }
+
     public static Timestamp addMinutesInCurrentTime( int min) {
         return new Timestamp(Instant.now().toEpochMilli()+ TimeUnit.MINUTES.toMillis(min));
     }

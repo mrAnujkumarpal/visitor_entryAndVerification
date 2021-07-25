@@ -70,8 +70,8 @@ public class LocationController {
         response.setResponseObject(locationService.allLocation());
         return response;
     }
-  /*  //internationalization
-    @GetMapping(path = "/hello-world-internationalized")
+    /*
+     @GetMapping(path = "/hello-world-internationalized")
     public String helloWorldInternationalized() {
         return messageSource.getMessage("good.morning.message");
     }*/

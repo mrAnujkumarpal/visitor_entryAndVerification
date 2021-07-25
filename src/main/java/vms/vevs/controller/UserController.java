@@ -2,10 +2,13 @@ package vms.vevs.controller;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,14 +16,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import vms.vevs.common.exception.ResourceNotFoundException;
 import vms.vevs.common.exception.VmsException;
 import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.common.Role;
 import vms.vevs.entity.common.RoleName;
+import vms.vevs.entity.employee.ResetPassword;
 import vms.vevs.entity.employee.Users;
-import vms.vevs.entity.virtualObject.HttpResponse;
-import vms.vevs.entity.virtualObject.LoginRequest;
-import vms.vevs.entity.virtualObject.LoginResponse;
+import vms.vevs.entity.virtualObject.*;
 import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.repo.RoleRepository;
 import vms.vevs.security.JwtTokenProvider;
@@ -29,6 +32,7 @@ import vms.vevs.service.UserService;
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/user/")
@@ -62,7 +66,7 @@ public class UserController {
         logger.info("inside login ");
 
         HttpResponse<LoginResponse> response = new HttpResponse<>();
-
+        try {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsername(),
@@ -72,13 +76,21 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
         Users user = userService.findByUsername(loginRequest.getUsername()).orElseThrow(() ->
-                new UsernameNotFoundException(messageSource.getMessage("error.user.not.found")));
-
+               // new UsernameNotFoundException(messageSource.getMessage("error.user.not.found")));
+                 new ResourceNotFoundException("USER", loginRequest.getUsername(), loginRequest.getUsername()));
         Long loggedInUserId = user.getId();
-        response.setResponseObject(new LoginResponse(jwt, loggedInUserId));
+        String role=new VMSHelper().roleOfUser(user);
+        response.setResponseObject(new LoginResponse(jwt, loggedInUserId,role));
 
-        return response;
+    } catch (Throwable e) {
+
+            HttpResponse.errorResponse(e.getMessage());
+        e.printStackTrace();
+
     }
+		return response;
+}
+
 
     @GetMapping(value = "all")
     public HttpResponse<?> listAllUsers(@RequestHeader("loggedInUserId") Long loggedInUserId) {
@@ -103,25 +115,49 @@ public class UserController {
     }
 
     @PostMapping(value = "public/create")
-    public HttpResponse<?> createUser(@RequestBody Users user, UriComponentsBuilder ucBuilder,
+    public HttpResponse<?> createUser(@RequestBody UserVO user, UriComponentsBuilder ucBuilder,
                                       @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Creating User : {}", user);
         logger.info("loggedInUserId : {}", loggedInUserId);
+
         HttpResponse<Users> response = new HttpResponse<>();
 
-        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
+        try {
+            String roleName = user.getRole();
+            roleName = roleName.toUpperCase();
+            Role userRole = null;
 
-        user.setRoles(Collections.singleton(userRole));
-        List<String> validationMsgList = validator.validateUser(user);
-        if (!validationMsgList.isEmpty()) {
-            return new HttpResponse().errorResponse(validationMsgList);
+            if (StringUtils.equals(roleName, RoleName.USER.name())) {
+                userRole = roleRepository.findByName(RoleName.USER)
+                        .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
+
+            } else if (StringUtils.equals(roleName, RoleName.ADMIN.name())) {
+                userRole = roleRepository.findByName(RoleName.ADMIN)
+                        .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
+
+            } else if (StringUtils.equals(roleName, RoleName.FRONT_DESK.name())) {
+                userRole = roleRepository.findByName(RoleName.FRONT_DESK)
+                        .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
+
+            }
+
+
+            List<String> validationMsgList = validator.validateUser(user);
+            if (!validationMsgList.isEmpty()) {
+                return new HttpResponse().errorResponse(validationMsgList);
+            }
+            Users savedUser = userService.saveUser(user, loggedInUserId, userRole);
+            savedUser.setPassword(StringUtils.EMPTY);
+            response.setResponseObject(savedUser);
+        } catch (Throwable e) {
+
+            HttpResponse.errorResponse(e.getMessage());
+            e.printStackTrace();
+
         }
-        Users savedUser = userService.saveUser(user, loggedInUserId);
-        savedUser.setPassword(StringUtils.EMPTY);
-        response.setResponseObject(savedUser);
         return response;
     }
+
 
 
     @PutMapping(value = "update/{id}")
@@ -139,7 +175,8 @@ public class UserController {
 
     @GetMapping(value = "public/employeesByLocationId/{locationId}",  produces = "application/json")
     @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
-    public HttpResponse<?> employeesByLocationId(@PathVariable("locationId") long locId, @RequestHeader("loggedInUserId") Long loggedInUserId) {
+    public HttpResponse<?> employeesByLocationId(@PathVariable("locationId") long locId
+            ,@RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Fetching User with location Id {}", locId);
         HttpResponse<List<Users>> response = new HttpResponse<>();
         response.setResponseObject(userService.employeesByLocationId(locId));
@@ -149,7 +186,7 @@ public class UserController {
     @PostMapping("public/forgotPassword")
     @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
     public HttpResponse<?> forgotPassword(@RequestParam String email) {
-        HttpResponse<String> response = new HttpResponse<>();
+        HttpResponse<ResetPassword> response = new HttpResponse<>();
         List<String> validationMsgList = validator.validateEmailForResetPassword(email);
         if (!validationMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validationMsgList);
@@ -158,16 +195,31 @@ public class UserController {
         return response;
     }
 
-    @PutMapping("/resetPassword")
+    @PutMapping("public/resetPassword")
     @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
-    public HttpResponse<?> resetPassword(@RequestParam String token,
-                                         @RequestParam String password) {
-        HttpResponse<String> response = new HttpResponse<>();
-        List<String> validationMsgList = validator.validateResetPasswordToken(token);
+    public HttpResponse<?> resetPassword(@RequestBody ResetPassword resetPassword) {
+        HttpResponse<ResetPassword> response = new HttpResponse<>();
+        List<String> validationMsgList = validator.validateResetPasswordToken(resetPassword);
         if (!validationMsgList.isEmpty()) {
             return new HttpResponse().errorResponse(validationMsgList);
         }
-        response.setResponseObject(userService.resetPassword(token, password));
+        response.setResponseObject(userService.resetPassword(resetPassword));
         return response;
     }
+
+
+    @GetMapping("/checkUsernameAvailability")
+    public HttpResponse<IdentityAvailability> checkUsernameAvailability(@RequestParam(value = "username") String username, @RequestHeader("loggedInUserId") Long loggedInUserId) {
+        HttpResponse<IdentityAvailability> response = new HttpResponse<>();
+        response.setResponseObject(userService.checkUsernameAvailability(username));
+        return response;
+    }
+
+    @GetMapping("/checkEmailAvailability")
+    public HttpResponse<IdentityAvailability> checkEmailAvailability(@RequestParam(value = "email") String email, @RequestHeader("loggedInUserId") Long loggedInUserId) {
+        HttpResponse<IdentityAvailability> response = new HttpResponse<>();
+        response.setResponseObject(userService.checkEmailAvailability(email));
+        return response;
+    }
+
 }

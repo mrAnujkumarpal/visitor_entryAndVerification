@@ -9,13 +9,18 @@ import org.springframework.stereotype.Service;
 import vms.vevs.common.util.VmsConstants;
 import vms.vevs.common.util.VmsUtils;
 import vms.vevs.entity.common.Location;
+import vms.vevs.entity.common.RoleName;
 import vms.vevs.entity.common.VMSEnum;
+import vms.vevs.entity.employee.ResetPassword;
 import vms.vevs.entity.employee.Users;
+import vms.vevs.entity.virtualObject.HttpResponse;
+import vms.vevs.entity.virtualObject.UserVO;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
 import vms.vevs.entity.visitor.VisitorFeedback;
 import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.repo.LocationRepository;
+import vms.vevs.repo.ResetPasswordRepository;
 import vms.vevs.repo.UserRepository;
 import vms.vevs.repo.VisitorRepository;
 import vms.vevs.service.AppOTPService;
@@ -42,6 +47,10 @@ public class Validator extends ValidatorHelper {
     @Autowired
     UserRepository userRepository;
 
+
+    @Autowired
+    ResetPasswordRepository passwordRepository;
+
     @Autowired
     MessageByLocaleService messageSource;
 
@@ -56,19 +65,18 @@ public class Validator extends ValidatorHelper {
         country = country.trim();
         if (StringUtils.isEmpty(locName) || StringUtils.isEmpty(locContactNo) || StringUtils.isEmpty(country)) {
             validateMessage.add(messageSource.getMessage("error.location.all.fields.required"));
-
-        }
-        if (!validateMinMaxLengthOfStr(locName, 3, 20)) {
-            validateMessage.add("Name contains only 3 - 20 characters.");
         }
         if (!validateValueByRegex(locName, VmsConstants.STRING_PATTERN)) {
-            validateMessage.add("Only String allowed in name.");
+            validateMessage.add(messageSource.getMessage("error.location.invalid.name"));
         }
-        if (!validateMinMaxLengthOfStr(locContactNo, 5, 30)) {
-            validateMessage.add("Location contact number contains only 5 - 30 characters.");
+        if (!validateMinMaxLengthOfStr(locName, 3, 20)) {
+            validateMessage.add(messageSource.getMessage("error.location.name", new Object[] {3, 20}));
+        }
+        if (!validateMinMaxLengthOfStr(locContactNo, 5, 50)) {
+            validateMessage.add(messageSource.getMessage("error.location.contact.number", new Object[] {5, 50}));
         }
         if (!validateMinMaxLengthOfStr(country, 3, 30)) {
-            validateMessage.add("Location contact number contains only 3 - 30 characters.");
+            validateMessage.add(messageSource.getMessage("error.location.invalid.country", new Object[] {3, 30}));
         }
         return validateMessage;
     }
@@ -77,18 +85,18 @@ public class Validator extends ValidatorHelper {
         List<String> validateMessage = new ArrayList<>();
         Long locId = location.getId();
         if (null == locId) {
-            validateMessage.add("Please provide location id to update location.");
+            validateMessage.add(messageSource.getMessage("error.location.invalid"));
             return validateMessage;
         }
         Location locationFromDB = locationRepository.getById(locId);
         if (null == locationFromDB) {
-            validateMessage.add("Please provide a valid location id to update location.");
+            validateMessage.add(messageSource.getMessage("error.location.not.available"));
         }
         createLocation(location);
         return validateMessage;
     }
 
-    public List<String> validateUser(Users user) {
+    public List<String> validateUser(UserVO user) {
         List<String> validateMessage = new ArrayList<>();
 
         String name = user.getName();
@@ -109,10 +117,10 @@ public class Validator extends ValidatorHelper {
         }
 
         if (!validateValueByRegex(email, VmsConstants.EMAIL_PATTERN)) {
-            validateMessage.add("Please provide a valid email.");
+            validateMessage.add(messageSource.getMessage("error.user.invalid.email"));
         }
         if (!validateValueByRegex(mobileNo, VmsConstants.MOBILE_PATTERN)) {
-            validateMessage.add("Please provide a valid phone number.");
+            validateMessage.add(messageSource.getMessage("error.user.invalid.phone.number"));
         }
     /*    if (!validateValueByRegex(mobileNo, VmsConstants.PASSWORD_PATTERN)) {
             String pass = "Password must contain at least one digit[0 - 9]."
@@ -122,6 +130,9 @@ public class Validator extends ValidatorHelper {
                     + "Password must contain a length of at least 6 characters and a maximum of 10 characters.";
             validateMessage.add(pass);
         }*/
+        if (!EnumUtils.isValidEnum(RoleName.class,user.getRole())) {
+            validateMessage.add(messageSource.getMessage("error.user.invalid.role"));
+        }
         Optional<Users> isUserAvail= userRepository.findByUsernameOrEmail(username,email);
         if(isUserAvail.isPresent() ){
             validateMessage.add(messageSource.getMessage("error.user.already.exist"));
@@ -167,20 +178,20 @@ public class Validator extends ValidatorHelper {
             validateMessage.add(messageSource.getMessage("error.visitor.all.fields.required"));
             return validateMessage;
         }
-        if (!validateMinMaxLengthOfStr(visitorName, 3, 20)) {
-            validateMessage.add("Name contains only 3 - 20 characters.");
-        }
         if (!validateValueByRegex(visitorName, VmsConstants.STRING_PATTERN)) {
-            validateMessage.add("Only String allowed in name.");
+            validateMessage.add(messageSource.getMessage("error.visitor.name.invalid"));
+        }
+        if (!validateMinMaxLengthOfStr(visitorName, 3, 30)) {
+            validateMessage.add(messageSource.getMessage("error.visitor.name", new Object[] {3, 30}));
         }
         if (!validateValueByRegex(visitorEmail, VmsConstants.EMAIL_PATTERN)) {
-            validateMessage.add("Please provide a valid email.");
+            validateMessage.add(messageSource.getMessage("error.visitor.email.invalid"));
         }
         if (!validateValueByRegex(mobileNumber, VmsConstants.MOBILE_PATTERN)) {
-            validateMessage.add("Please provide a valid phone number.");
+            validateMessage.add(messageSource.getMessage("error.visitor.mobile.number.invalid"));
         }
         if (!validateMinMaxLengthOfStr(visitorOTP, 6, 6)) {
-            validateMessage.add("OTP contains only 6 characters.");
+            validateMessage.add(messageSource.getMessage("error.visitor.otp.invalid"));
         }
         if (!EnumUtils.isValidEnum(VMSEnum.PURPOSE_OF_VISIT.class, purposeOfVisit)) {
             validateMessage.add(messageSource.getMessage("error.visitor.invalid.visitorPurpose"));
@@ -189,7 +200,7 @@ public class Validator extends ValidatorHelper {
             validateMessage.add("Purpose of visit contains only 3 - 10 characters.");
         }*/
         if (!validateMinMaxLengthOfStr(visitorAddress, 5, 30)) {
-            validateMessage.add("Address contains only 5 - 30 characters.");
+            validateMessage.add(messageSource.getMessage("error.visitor.address", new Object[] {5, 30}));
         }
 
         Users hostEmployee = userRepository.getById(hostEmployeeId);
@@ -213,21 +224,21 @@ public class Validator extends ValidatorHelper {
         List<String> validateMessage = new ArrayList<>();
         Long visitorId = visitor.getId();
         if (null == visitorId) {
-            validateMessage.add("Please provide visitor id to update visitor.");
+            validateMessage.add(messageSource.getMessage("error.visitor.invalid"));
             return validateMessage;
         }
         Visitor visitorFromDB = visitorRepository.getById(visitorId);
         if (null == visitorFromDB) {
-            validateMessage.add("Please provide a valid visitor id to update visitor.");
+            validateMessage.add(messageSource.getMessage("error.visitor.invalid"));
         }
         String visitorStatus = visitor.getVisitorStatus();
         if (!EnumUtils.isValidEnum(VMSEnum.VISITOR_STATUS.class, visitorStatus)) {
-            validateMessage.add("Please provide a valid status.");
+            validateMessage.add(messageSource.getMessage("error.visitor.status.invalid"));
         }
         return validateMessage;
     }
 
-    public List<String> createUser(Users user, MessageByLocaleService messageSource) {
+    public List<String> createUser(Users user) {
         List<String> validateMessage = new ArrayList<>();
 
         String name = user.getName();
@@ -274,14 +285,27 @@ public class Validator extends ValidatorHelper {
         return validateMessage;
     }
 
-    public List<String> validateResetPasswordToken(String token) {
+    public List<String> validateResetPasswordToken(ResetPassword request) {
 
         List<String> validateMessage = new ArrayList<>();
-        Users user = userRepository.findByToken(token);
-        Timestamp tokenCreationDate = user.getTokenCreationTime();
-        if (isTokenExpired(tokenCreationDate)) {
+        if(null==request){
+            validateMessage.add(messageSource.getMessage("error.user.reset.pwd.invalid.token"));
+            return validateMessage;
+        }
+        ResetPassword resetPassword = passwordRepository.findByToken(request.getToken());
+        if(null==resetPassword){
+            validateMessage.add(messageSource.getMessage("error.user.reset.pwd.invalid.token"));
+            return validateMessage;
+        }
+        if(!StringUtils.equals(request.getUserEmail(),resetPassword.getUserEmail())){
             validateMessage.add(messageSource.getMessage("error.user.reset.pwd.invalid.token"));
         }
+        Timestamp tokenCreationDate = resetPassword.getTokenCreationTime();
+        if (isTokenExpired(tokenCreationDate)) {
+            validateMessage.add(messageSource.getMessage("error.user.reset.pwd.expire.token"
+                    , new Object[] {VmsConstants.UPDATE_PASSWORD_TOKEN_EXPIRE_IN_MINUTES,"minutes"}));
+        }
+
         return validateMessage;
     }
 
@@ -289,10 +313,13 @@ public class Validator extends ValidatorHelper {
 
     public List<String> validateEmailForResetPassword(String email) {
         List<String> validateMessage = new ArrayList<>();
-
+        if(StringUtils.isEmpty(email)) {
+            validateMessage.add(messageSource.getMessage("error.user.reset.pwd.na.email"));
+            return validateMessage;
+        }
         Optional<Users> userOptional = userRepository.findByEmail(email);
         if (!userOptional.isPresent()) {
-            validateMessage.add(messageSource.getMessage("error.user.email.not.found", new Object[] {email}));
+            validateMessage.add(messageSource.getMessage("error.user.reset.pwd.email.not.found", new Object[] {email}));
         }
         return validateMessage;
     }
@@ -300,10 +327,9 @@ public class Validator extends ValidatorHelper {
 
     private boolean isTokenExpired(final Timestamp tokenCreationTime) {
         Timestamp now= VmsUtils.currentTime();
-        Long differenceInMin=VmsUtils.timeDifferenceIn("MM",tokenCreationTime,now);
+        Long differenceInMin=VmsUtils.timeDifferenceIn( VmsConstants.MINUTE,tokenCreationTime,now);
         return differenceInMin >= VmsConstants.UPDATE_PASSWORD_TOKEN_EXPIRE_IN_MINUTES;
     }
 
-    /**/
 }
 

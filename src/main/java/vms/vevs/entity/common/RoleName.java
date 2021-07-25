@@ -4,7 +4,7 @@ package vms.vevs.entity.common;
  * Created by Anuj kumar pal
  */
 public enum RoleName {
-    ROLE_USER,
-    ROLE_ADMIN,
-    ROLE_FRONT_DESK
+    USER,
+    ADMIN,
+    FRONT_DESK
 }

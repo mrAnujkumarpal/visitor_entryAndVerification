@@ -26,6 +26,7 @@ public abstract class BaseEntity{
     @JsonIgnore
     private Long createdBy;
 
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Timestamp createdOn;
 
@@ -34,8 +35,8 @@ public abstract class BaseEntity{
     private Long modifiedBy;
 
 
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
-    @JsonIgnore
     private Timestamp modifiedOn;
 
     private boolean enable;
