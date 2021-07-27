@@ -19,7 +19,7 @@ public class HttpResponse<T> implements Serializable {
 
     private String httpStatus = VMSEnum.HTTP_RESPONSE.SUCCESS.name();
 
-    private String httpCode = HttpStatus.OK.name();
+    private Integer httpCode = HttpStatus.OK.value();
 
     private String responseMessage; //success message or failure message
 
@@ -35,7 +35,15 @@ public class HttpResponse<T> implements Serializable {
     public static HttpResponse errorResponse(Object validationMsg){
         HttpResponse errorResponse = new HttpResponse<>();
         errorResponse.setHttpStatus(VMSEnum.HTTP_RESPONSE.FAILURE.name());
-        errorResponse.setHttpCode(HttpStatus.FAILED_DEPENDENCY.name());
+        errorResponse.setHttpCode(HttpStatus.EXPECTATION_FAILED.value());
+        errorResponse.setResponseObject(validationMsg);
+        return  errorResponse;
+    }
+
+    public static HttpResponse loginErrorResponse(Object validationMsg){
+        HttpResponse errorResponse = new HttpResponse<>();
+        errorResponse.setHttpStatus(VMSEnum.HTTP_RESPONSE.FAILURE.name());
+        errorResponse.setHttpCode(HttpStatus.BAD_REQUEST.value());
         errorResponse.setResponseObject(validationMsg);
         return  errorResponse;
     }

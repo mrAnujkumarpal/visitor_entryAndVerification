@@ -80,12 +80,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Users updateUser(Users user, Long userId) {
+    public Users updateUser(Users userTobeUpdate, Long loggedInUserId) {
 
-        Users dbUser = userRepository.getById(user.getId());
+        Users dbUser = userRepository.getById(userTobeUpdate.getId());
 
         dbUser.setModifiedOn(VmsUtils.currentTime());
-        dbUser.setModifiedBy(userId);
+        dbUser.setModifiedBy(loggedInUserId);
         return userRepository.save(dbUser);
     }
 

@@ -30,6 +30,7 @@ import vms.vevs.security.JwtTokenProvider;
 import vms.vevs.service.UserService;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -37,8 +38,6 @@ import java.util.Locale;
 @RestController
 @RequestMapping("/user/")
 public class UserController {
-
-
     public static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
@@ -67,39 +66,33 @@ public class UserController {
 
         HttpResponse<LoginResponse> response = new HttpResponse<>();
         try {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()
-                )
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
-        Users user = userService.findByUsername(loginRequest.getUsername()).orElseThrow(() ->
-               // new UsernameNotFoundException(messageSource.getMessage("error.user.not.found")));
-                 new ResourceNotFoundException("USER", loginRequest.getUsername(), loginRequest.getUsername()));
-        Long loggedInUserId = user.getId();
-        String role=new VMSHelper().roleOfUser(user);
-        response.setResponseObject(new LoginResponse(jwt, loggedInUserId,role));
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(),
+                            loginRequest.getPassword()
+                    )
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = tokenProvider.generateToken(authentication);
+            Users user = userService.findByUsername(loginRequest.getUsername()).orElseThrow(() ->
+                    new ResourceNotFoundException("USER", loginRequest.getUsername(), loginRequest.getUsername()));
+            Long loggedInUserId = user.getId();
+            String role = new VMSHelper().roleOfUser(user);
+            response.setResponseObject(new LoginResponse(jwt, loggedInUserId, role));
 
-    } catch (Throwable e) {
-
-            HttpResponse.errorResponse(e.getMessage());
-        e.printStackTrace();
-
+        } catch (Throwable e) {
+            List<String> validationMsgList = new ArrayList<>();
+            validationMsgList.add(e.getMessage());
+            return HttpResponse.loginErrorResponse(validationMsgList);
+        }
+        return response;
     }
-		return response;
-}
 
 
     @GetMapping(value = "all")
     public HttpResponse<?> listAllUsers(@RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<List<Users>> response = new HttpResponse<>();
-        List<Users> usersList = userService.findAllUsers();
-        for (Users list : usersList) {
-            list.setPassword(StringUtils.EMPTY);
-        }
-        response.setResponseObject(usersList);
+        response.setResponseObject(userService.findAllUsers());
         return response;
     }
 
@@ -108,9 +101,7 @@ public class UserController {
     public HttpResponse<?> getUser(@PathVariable("id") long id, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Fetching User with id {}", id);
         HttpResponse<Users> response = new HttpResponse<>();
-        Users user = userService.findById(id);
-        user.setPassword(StringUtils.EMPTY);
-        response.setResponseObject(user);
+        response.setResponseObject(userService.findById(id));
         return response;
     }
 
@@ -119,7 +110,6 @@ public class UserController {
                                       @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Creating User : {}", user);
         logger.info("loggedInUserId : {}", loggedInUserId);
-
         HttpResponse<Users> response = new HttpResponse<>();
 
         try {
@@ -130,54 +120,40 @@ public class UserController {
             if (StringUtils.equals(roleName, RoleName.USER.name())) {
                 userRole = roleRepository.findByName(RoleName.USER)
                         .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
-
             } else if (StringUtils.equals(roleName, RoleName.ADMIN.name())) {
                 userRole = roleRepository.findByName(RoleName.ADMIN)
                         .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
-
             } else if (StringUtils.equals(roleName, RoleName.FRONT_DESK.name())) {
                 userRole = roleRepository.findByName(RoleName.FRONT_DESK)
                         .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
-
             }
-
 
             List<String> validationMsgList = validator.validateUser(user);
             if (!validationMsgList.isEmpty()) {
                 return new HttpResponse().errorResponse(validationMsgList);
             }
-            Users savedUser = userService.saveUser(user, loggedInUserId, userRole);
-            savedUser.setPassword(StringUtils.EMPTY);
-            response.setResponseObject(savedUser);
+            response.setResponseObject(userService.saveUser(user, loggedInUserId, userRole));
         } catch (Throwable e) {
-
-            HttpResponse.errorResponse(e.getMessage());
-            e.printStackTrace();
-
+            List<String> validationMsgList = new ArrayList<>();
+            validationMsgList.add(e.getMessage());
+            return HttpResponse.errorResponse(validationMsgList);
         }
         return response;
     }
 
 
-
-    @PutMapping(value = "update/{id}")
-    public HttpResponse<?> updateUser(@PathVariable("id") long id,
-                                      @RequestBody Users user
+    @PutMapping(value = "update")
+    public HttpResponse<?> updateUser(@RequestBody Users userTobeUpdate
             , @RequestHeader("loggedInUserId") Long loggedInUserId) {
-        logger.info("Updating User with id {}", id);
         HttpResponse<Users> response = new HttpResponse<>();
-        Users currentUser = userService.findById(id);
-
-        Users updatedUser = userService.updateUser(currentUser, loggedInUserId);
-        updatedUser.setPassword(StringUtils.EMPTY);
-        response.setResponseObject(updatedUser);
+        response.setResponseObject(userService.updateUser(userTobeUpdate, loggedInUserId));
         return response;
     }
 
-    @GetMapping(value = "public/employeesByLocationId/{locationId}",  produces = "application/json")
+    @GetMapping(value = "public/employeesByLocationId/{locationId}", produces = "application/json")
     @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
     public HttpResponse<?> employeesByLocationId(@PathVariable("locationId") long locId
-            ,@RequestHeader("loggedInUserId") Long loggedInUserId) {
+            , @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Fetching User with location Id {}", locId);
         HttpResponse<List<Users>> response = new HttpResponse<>();
         response.setResponseObject(userService.employeesByLocationId(locId));
@@ -207,17 +183,15 @@ public class UserController {
         response.setResponseObject(userService.resetPassword(resetPassword));
         return response;
     }
+
     @PostMapping("logout")
-    public HttpResponse<?> logout(@RequestHeader("loggedInUserId") Long loggedInUserId)
-            throws Exception {
+    public HttpResponse<?> logout(@RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse response = new HttpResponse();
         try {
-
             response.setResponseObject(Boolean.TRUE);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return response;
     }
 
