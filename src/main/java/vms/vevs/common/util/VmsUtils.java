@@ -18,7 +18,19 @@ public class VmsUtils {
     public static Timestamp addMinutesInCurrentTime( int min) {
         return new Timestamp(Instant.now().toEpochMilli()+ TimeUnit.MINUTES.toMillis(min));
     }
+    public static Timestamp defaultTime() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, 1991);
+        cal.set(Calendar.MONTH, 8);
+        cal.set(Calendar.DATE, 26);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
 
+        Timestamp ts = new Timestamp(cal.getTimeInMillis());
+        return ts;
+    }
     public static Timestamp currentTime() {
         Calendar calendar=Calendar.getInstance();
         long millis = calendar.getTimeInMillis();
@@ -66,13 +78,13 @@ public class VmsUtils {
 
         long diff = milliseconds2 - milliseconds1;
         source = source.toUpperCase();
-        if (source.equals("SS")) {
+        if (source.equals(VmsConstants.SS)) {
             differ = diff / 1000;
-        } else if (source.equals("MM")) {
+        } else if (source.equals(VmsConstants.MM)) {
             differ = diff / (60 * 1000);
-        } else if (source.equals("HH")) {
+        } else if (source.equals(VmsConstants.HH)) {
             differ = diff / (60 * 60 * 1000);
-        } else if (source.equals("DD")) {
+        } else if (source.equals(VmsConstants.DD)) {
             differ = diff / (24 * 60 * 60 * 1000);
         }
 

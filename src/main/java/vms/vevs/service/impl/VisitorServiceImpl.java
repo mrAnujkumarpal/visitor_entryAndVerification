@@ -105,29 +105,6 @@ public class VisitorServiceImpl implements VisitorService {
                         .collect(Collectors.toList());
     }
 
-    @Override
-    public List<Visitor> todayVisitorList() {
-        Timestamp today=VmsUtils.currentTime();
-        Timestamp from =VmsUtils.startOfTheDay(today);
-        Timestamp to =VmsUtils.endOfTheDay(today);
-        List<Visitor> vl=visitorRepository.findAllByCreatedOn(today);
-        return  visitorRepository.findAllByCreatedOnBetween(from,to);
-    }
-
-    @Override
-    public List<Visitor> todayVisitorList(Long currentLocId) {
-
-        List<Visitor> visitorList=todayVisitorList();
-        List<Visitor> result =new ArrayList<>();
-        if(!visitorList.isEmpty()) {
-
-             result = visitorList.stream()
-                     .filter(loc -> loc.getLocation().getId() ==currentLocId)
-                    .collect(Collectors.toList());
-
-        }
-        return result;
-    }
 
 
 

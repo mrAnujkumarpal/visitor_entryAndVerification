@@ -17,10 +17,10 @@ public class VmsConstants {
     public static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)$";
     public static final String PASSWORD_PATTERN ="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{6,10}$";
 
-
-    public static final String HOURS="HH";
-    public static final String MINUTE="MM";
-    public static final String SECOND="SS";
+    public static final String DD="DAYS";
+    public static final String HH="HOURS";
+    public static final String MM="MINUTE";
+    public static final String SS="SECONDS";
 
 
 }

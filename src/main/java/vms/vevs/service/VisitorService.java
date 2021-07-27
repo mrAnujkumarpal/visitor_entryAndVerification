@@ -19,9 +19,5 @@ public interface VisitorService {
 
     List<String> purposeOfVisit();
 
-    List<Visitor> todayVisitorList();
-
-    List<Visitor> todayVisitorList(Long currentLocId);
-
 
 }

@@ -14,6 +14,7 @@ import vms.vevs.entity.common.VMSEnum;
 import vms.vevs.entity.employee.ResetPassword;
 import vms.vevs.entity.employee.Users;
 import vms.vevs.entity.virtualObject.HttpResponse;
+import vms.vevs.entity.virtualObject.ReportRequestVO;
 import vms.vevs.entity.virtualObject.UserVO;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
@@ -326,10 +327,27 @@ public class Validator extends ValidatorHelper {
 
 
     private boolean isTokenExpired(final Timestamp tokenCreationTime) {
-        Timestamp now= VmsUtils.currentTime();
-        Long differenceInMin=VmsUtils.timeDifferenceIn( VmsConstants.MINUTE,tokenCreationTime,now);
+        Timestamp currentTime= VmsUtils.currentTime();
+        Long differenceInMin=VmsUtils.timeDifferenceIn(VmsConstants.MM,tokenCreationTime,currentTime);
         return differenceInMin >= VmsConstants.UPDATE_PASSWORD_TOKEN_EXPIRE_IN_MINUTES;
     }
 
+    public List<String> validateReportRequest(ReportRequestVO request) {
+        List<String> validateMessage = new ArrayList<>();
+
+
+        if(null==request.getFromDate()){
+            request.setFromDate(VmsUtils.defaultTime());
+        }
+        if(null==request.getToDate()){
+            request.setToDate(VmsUtils.currentTime());
+        }
+        if(request.getFromDate().compareTo(request.getToDate())>0) {
+            validateMessage.add(messageSource.getMessage("fromTime.beforeTo.toTime", new Object[] {"From Time","To Time"}));
+        }
+
+
+        return validateMessage;
+    }
 }
 

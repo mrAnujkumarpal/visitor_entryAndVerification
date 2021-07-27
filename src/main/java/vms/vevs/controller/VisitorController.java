@@ -37,8 +37,7 @@ public class VisitorController {
     @Autowired
     Validator validator;
 
-    @Autowired
-    UserService userService;
+
 
     @RequestMapping(value = "allVisitor", method = RequestMethod.GET)
     public HttpResponse<?> listAllVisitor() {
@@ -109,31 +108,6 @@ public class VisitorController {
         return response;
     }
 
-    @GetMapping(value = "view/homePageVisitorList")
-    public HttpResponse<?> homePageVisitorList(@RequestHeader("loggedInUserId") Long loggedInUserId) {
-        HttpResponse<List<Visitor> > response = new HttpResponse<>();
-
-        Users user = userService.findById(loggedInUserId);
-        Long currentLocId = user.getCurrentLocation().getId();
-        String roleName = new VMSHelper().roleOfUser(user);
-
-        List<Visitor> visitorsList = new ArrayList<>();
-        if (StringUtils.equals(roleName, RoleName.FRONT_DESK.name())) {
-            visitorsList = visitorService.todayVisitorList(currentLocId);
-        } else if (StringUtils.equals(roleName, RoleName.USER.name())) {
-            visitorsList = visitorService.todayVisitorList(currentLocId);
-
-            List<Visitor> result = visitorsList.stream()
-                    .filter(me -> me.getHostEmployee().getId() == loggedInUserId)
-                    .collect(Collectors.toList());
-            visitorsList = result;
-        } else if (StringUtils.equals(roleName, RoleName.ADMIN.name())) {
-            visitorsList = visitorService.todayVisitorList();
-        }
-
-        response.setResponseObject(visitorsList);
-        return response;
-    }
 
 
 
