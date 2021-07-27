@@ -9,4 +9,5 @@ public class ReportRequestVO {
 
     Timestamp fromDate;
     Timestamp toDate;
+    Long hostEmployeeId;
 }

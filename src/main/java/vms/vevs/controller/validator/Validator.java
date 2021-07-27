@@ -343,7 +343,14 @@ public class Validator extends ValidatorHelper {
             request.setToDate(VmsUtils.currentTime());
         }
         if(request.getFromDate().compareTo(request.getToDate())>0) {
-            validateMessage.add(messageSource.getMessage("fromTime.beforeTo.toTime", new Object[] {"From Time","To Time"}));
+            validateMessage.add(messageSource.getMessage("report.error.fromTime.beforeTo.toTime", new Object[] {"From Time","To Time"}));
+        }
+        Long hostEmployeeIdId=request.getHostEmployeeId();
+        if(null!=hostEmployeeIdId){
+            Users hostEmployee = userRepository.getById(hostEmployeeIdId);
+            if (hostEmployee == null) {
+                validateMessage.add(messageSource.getMessage("report.error.na.hostEmployee"));
+            }
         }
 
 

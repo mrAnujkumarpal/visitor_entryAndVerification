@@ -162,7 +162,8 @@ public class UserController {
 
     @PutMapping(value = "update/{id}")
     public HttpResponse<?> updateUser(@PathVariable("id") long id,
-                                      @RequestBody Users user, @RequestHeader("loggedInUserId") Long loggedInUserId) {
+                                      @RequestBody Users user
+            , @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Updating User with id {}", id);
         HttpResponse<Users> response = new HttpResponse<>();
         Users currentUser = userService.findById(id);
@@ -206,7 +207,19 @@ public class UserController {
         response.setResponseObject(userService.resetPassword(resetPassword));
         return response;
     }
+    @PostMapping("logout")
+    public HttpResponse<?> logout(@RequestHeader("loggedInUserId") Long loggedInUserId)
+            throws Exception {
+        HttpResponse response = new HttpResponse();
+        try {
 
+            response.setResponseObject(Boolean.TRUE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
 
     @GetMapping("/checkUsernameAvailability")
     public HttpResponse<IdentityAvailability> checkUsernameAvailability(@RequestParam(value = "username") String username, @RequestHeader("loggedInUserId") Long loggedInUserId) {
