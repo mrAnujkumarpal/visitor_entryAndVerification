@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import vms.vevs.common.exception.ResourceNotFoundException;
 import vms.vevs.common.exception.VmsException;
+import vms.vevs.common.notification.SmsRequest;
+import vms.vevs.common.notification.SmsSender;
 import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.common.Role;
 import vms.vevs.entity.common.RoleName;
@@ -57,6 +59,9 @@ public class UserController {
 
     @Autowired
     Validator validator;
+
+    @Autowired
+    private  SmsSender service;
 
 
     @PostMapping("public/login")
@@ -207,6 +212,12 @@ public class UserController {
         HttpResponse<IdentityAvailability> response = new HttpResponse<>();
         response.setResponseObject(userService.checkEmailAvailability(email));
         return response;
+    }
+
+    @PostMapping("public/smsOnOTP")
+    @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
+    public void sendSms(@Valid @RequestBody SmsRequest smsRequest) {
+        service.sendSms(smsRequest);
     }
 
 }

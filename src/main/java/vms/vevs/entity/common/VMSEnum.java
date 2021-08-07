@@ -18,5 +18,10 @@ public class VMSEnum {
         EMAIL, SMS
     }
 
-
+    public  enum MODULE_NAME{
+        LOCATION,USER,VISITOR
+    }
+    public  enum BULK_UPLOAD_STATUS{
+        PENDING,VALIDATE,PROCESSED
+    }
 }

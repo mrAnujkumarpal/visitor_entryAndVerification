@@ -61,9 +61,11 @@ public class Validator extends ValidatorHelper {
         String locName = location.getName();
         String locContactNo = location.getLocationContactNo();
         String country = location.getCountry();
+        String address= location.getLocationAddress();
         locName = locName.trim();
         locContactNo = locContactNo.trim();
         country = country.trim();
+        address=address.trim();
         if (StringUtils.isEmpty(locName) || StringUtils.isEmpty(locContactNo) || StringUtils.isEmpty(country)) {
             validateMessage.add(messageSource.getMessage("error.location.all.fields.required"));
         }
@@ -75,6 +77,9 @@ public class Validator extends ValidatorHelper {
         }
         if (!validateMinMaxLengthOfStr(locContactNo, 5, 50)) {
             validateMessage.add(messageSource.getMessage("error.location.contact.number", new Object[] {5, 50}));
+        }
+        if (!validateMinMaxLengthOfStr(address, 5, 100)) {
+            validateMessage.add(messageSource.getMessage("error.location.address", new Object[] {5, 100}));
         }
         if (!validateMinMaxLengthOfStr(country, 3, 30)) {
             validateMessage.add(messageSource.getMessage("error.location.invalid.country", new Object[] {3, 30}));
@@ -214,9 +219,9 @@ public class Validator extends ValidatorHelper {
         }
 
 
-       /* if (!otpService.isValidOTP(visitorOTP, visitorEmail, mobileNumber)) {
+         if (!otpService.isValidOTP(visitorOTP, visitorEmail, mobileNumber)) {
             validateMessage.add(messageSource.getMessage("error.visitor.otp.invalid"));
-        }*/
+        }
 
         return validateMessage;
     }

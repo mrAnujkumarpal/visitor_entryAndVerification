@@ -14,5 +14,6 @@ public class Location  extends BaseEntity {
 
 
     private String locationContactNo;
+    private String locationAddress;
     private String country;
 }
