@@ -23,8 +23,6 @@ public class Users extends BaseEntity {
     private String username;
     private String mobileNo;
 
-    private String userImage;
-
     private String email;
 
     @JsonIgnore

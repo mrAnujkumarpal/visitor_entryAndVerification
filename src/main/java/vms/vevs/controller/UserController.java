@@ -110,8 +110,8 @@ public class UserController {
         return response;
     }
 
-    @PostMapping(value = "public/create")
-    public HttpResponse<?> createUser(@RequestBody UserVO user, UriComponentsBuilder ucBuilder,
+    @PostMapping(value = "public/newUser")
+    public HttpResponse<?> newUser(@RequestBody UserVO user, UriComponentsBuilder ucBuilder,
                                       @RequestHeader("loggedInUserId") Long loggedInUserId) {
         logger.info("Creating User : {}", user);
         logger.info("loggedInUserId : {}", loggedInUserId);

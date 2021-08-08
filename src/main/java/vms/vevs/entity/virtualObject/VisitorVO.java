@@ -15,11 +15,8 @@ public class VisitorVO {
     private String visitorAddress;
     private String purposeOfVisit; //PURPOSE_OF_VISIT
     private Long hostEmployeeId;
-
-    private String visitorImage;
-
+    private String visitorCode;
     private Long locationId;
-
     private String visitorOTP;
 
 

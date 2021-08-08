@@ -6,4 +6,5 @@ import vms.vevs.entity.bulk.BulkUploadRecordsFile;
 
 @Repository
 public interface BulkUploadRecordsFileRepository extends JpaRepository<BulkUploadRecordsFile,Long> {
+
 }

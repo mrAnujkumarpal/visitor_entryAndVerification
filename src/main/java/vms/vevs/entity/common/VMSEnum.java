@@ -22,6 +22,6 @@ public class VMSEnum {
         LOCATION,USER,VISITOR
     }
     public  enum BULK_UPLOAD_STATUS{
-        PENDING,VALIDATE,PROCESSED
+        PENDING,VALIDATE,REJECT,SUBMITTED
     }
 }

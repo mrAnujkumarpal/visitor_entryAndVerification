@@ -5,9 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import vms.vevs.common.notification.EmailService;
 import vms.vevs.common.util.VmsUtils;
 import vms.vevs.entity.common.VMSEnum;
+import vms.vevs.entity.virtualObject.HttpResponse;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
 import vms.vevs.entity.visitor.VisitorFeedback;
@@ -16,6 +18,7 @@ import vms.vevs.repo.*;
 import vms.vevs.service.VisitorService;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,12 +49,14 @@ public class VisitorServiceImpl implements VisitorService {
     @Autowired
     VisitorFeedbackRepository feedbackRepository;
 
+
     @Override
     public Visitor newVisitor(VisitorVO newVisitor) {
         Visitor visitor = new Visitor();
         visitor.setEnable(true);
         visitor.setCreatedOn(VmsUtils.currentTime());
-        visitor.setVisitorCode(VmsUtils.visitorCode());
+       // visitor.setVisitorCode(VmsUtils.visitorCode());
+        visitor.setVisitorCode(newVisitor.getVisitorCode());
         visitor.setName(newVisitor.getVisitorName());
         visitor.setVisitorEmail(newVisitor.getVisitorEmail());
         visitor.setMobileNumber(newVisitor.getMobileNumber());
@@ -60,12 +65,12 @@ public class VisitorServiceImpl implements VisitorService {
         visitor.setVisitorStatus(VMSEnum.VISITOR_STATUS.CHECK_IN.name());
         visitor.setLocation(locRepository.getById(newVisitor.getLocationId()));
         visitor.setHostEmployee(userRepository.getById(newVisitor.getHostEmployeeId()));
-        if(StringUtils.isNotEmpty(newVisitor.getVisitorImage())) {
+       /* if(StringUtils.isNotEmpty(newVisitor.getVisitorImage())) {
             VisitorImage visitorImage = new VisitorImage();
             visitorImage.setVisitorCode(visitor.getVisitorCode());
             visitorImage.setVisitorImage(newVisitor.getVisitorImage());
             imageRepository.save(visitorImage);
-        }
+        }*/
         Visitor newlyAddedVisitor= visitorRepository.save(visitor);
         notifyToHostEmployee(newlyAddedVisitor);
         return newlyAddedVisitor;
@@ -105,10 +110,15 @@ public class VisitorServiceImpl implements VisitorService {
                         .collect(Collectors.toList());
     }
 
+    @Override
+    public VisitorImage saveVisitorImage(String visitorCode, MultipartFile visitorImage) throws IOException {
 
+        VisitorImage image = new VisitorImage();
+        image.setVisitorCode(visitorCode);
+        image.setPhoto(visitorImage.getBytes());
 
-
-
+        return imageRepository.save(image);
+    }
 
 
 }

@@ -30,11 +30,11 @@ public class BulkUploadRecordsFile {
     String validationIssues;
 
 
-    boolean execute=false;
+    boolean submitted=false;
     @JsonIgnore
-    private Long executeBy;
+    private Long submittedBy;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
-    private Timestamp executeOn;
+    private Timestamp submittedOn;
 
 
     boolean reject=false;
