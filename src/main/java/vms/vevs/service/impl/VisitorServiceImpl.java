@@ -55,8 +55,7 @@ public class VisitorServiceImpl implements VisitorService {
         Visitor visitor = new Visitor();
         visitor.setEnable(true);
         visitor.setCreatedOn(VmsUtils.currentTime());
-       // visitor.setVisitorCode(VmsUtils.visitorCode());
-        visitor.setVisitorCode(newVisitor.getVisitorCode());
+        visitor.setVisitorCode(VmsUtils.visitorCode());
         visitor.setName(newVisitor.getVisitorName());
         visitor.setVisitorEmail(newVisitor.getVisitorEmail());
         visitor.setMobileNumber(newVisitor.getMobileNumber());
