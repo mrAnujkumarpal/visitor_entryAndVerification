@@ -71,7 +71,8 @@ public class VisitorController {
 
     @PostMapping(value = "public/newVisitorImage")
     @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
-    public HttpResponse<?> newVisitorImage(@RequestParam String visitorCode,@RequestParam MultipartFile visitorImage)
+    public HttpResponse<?> newVisitorImage(@RequestParam String visitorCode,
+                                           @RequestParam MultipartFile visitorImage)
             throws IOException {
         HttpResponse<VisitorImage> response = new HttpResponse<>();
         response.setResponseObject(visitorService.saveVisitorImage(visitorCode,visitorImage));

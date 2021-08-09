@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import vms.vevs.controller.validator.BulkValidator;
 import vms.vevs.entity.bulk.BulkUploadRecordsFile;
 import vms.vevs.entity.common.Location;
+import vms.vevs.entity.common.VMSEnum;
 import vms.vevs.entity.virtualObject.BulkRejectVO;
 import vms.vevs.entity.virtualObject.HttpResponse;
 import vms.vevs.service.BulkUploadService;
@@ -33,9 +34,9 @@ public class BulkUploadController {
                                           @PathVariable("moduleName") String moduleName,
                                           @RequestHeader("loggedInUserId") Long loggedInUserId) throws Exception {
         HttpResponse<BulkUploadRecordsFile> response = new HttpResponse<>();
-        List<String> validateLocation = validator.validateNewFile(file, moduleName);
-        if (!validateLocation.isEmpty()) {
-            return new HttpResponse().errorResponse(validateLocation);
+        List<String> validateNewFile = validator.validateNewFile(file, moduleName);
+        if (!validateNewFile.isEmpty()) {
+            return new HttpResponse().errorResponse(validateNewFile);
         }
 
         BulkUploadRecordsFile uploadedData = bulkUploadService.uploadNewFileData(loggedInUserId, file, fileName, moduleName);
@@ -48,7 +49,10 @@ public class BulkUploadController {
                                            @PathVariable("uploadedFileId") Long uploadedFileId,
                                            @RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<BulkUploadRecordsFile> response = new HttpResponse<>();
-
+        List<String> validateNewFileData = validator.validateNewFileData(uploadedFileId, moduleName);
+        if (!validateNewFileData.isEmpty()) {
+            return new HttpResponse().errorResponse(validateNewFileData);
+        }
         BulkUploadRecordsFile validateData = bulkUploadService.validateFileRecord(uploadedFileId, moduleName, loggedInUserId);
         response.setResponseObject(validateData);
         return response;
@@ -58,7 +62,10 @@ public class BulkUploadController {
     public HttpResponse rejectFileRecord(@RequestBody BulkRejectVO rejectVO,
                                          @RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<BulkUploadRecordsFile> response = new HttpResponse<>();
-
+        List<String> rejectNewFileData = validator.rejectNewFileData(rejectVO, loggedInUserId);
+        if (!rejectNewFileData.isEmpty()) {
+            return new HttpResponse().errorResponse(rejectNewFileData);
+        }
         BulkUploadRecordsFile validateData = bulkUploadService.rejectFileRecord(rejectVO, loggedInUserId);
         response.setResponseObject(validateData);
         return response;
@@ -70,7 +77,10 @@ public class BulkUploadController {
                                          @PathVariable("uploadedFileId") Long uploadedFileId,
                                          @RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<BulkUploadRecordsFile> response = new HttpResponse<>();
-
+        List<String> submitNewFileData = validator.submitNewFileData(uploadedFileId, moduleName);
+        if (!submitNewFileData.isEmpty()) {
+            return new HttpResponse().errorResponse(submitNewFileData);
+        }
         BulkUploadRecordsFile validateData = bulkUploadService.submitFileRecord(uploadedFileId, moduleName, loggedInUserId);
         response.setResponseObject(validateData);
         return response;

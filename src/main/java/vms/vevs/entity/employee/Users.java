@@ -32,6 +32,10 @@ public class Users extends BaseEntity {
 
     private String designation;
 
+    @Lob
+    private byte[] profilePhoto;
+
+
 
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     private Location baseLocation;

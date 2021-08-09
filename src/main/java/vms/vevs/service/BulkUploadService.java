@@ -5,8 +5,6 @@ import org.springframework.web.multipart.MultipartFile;
 import vms.vevs.entity.bulk.BulkUploadRecordsFile;
 import vms.vevs.entity.virtualObject.BulkRejectVO;
 
-import java.io.IOException;
-
 @Service
 public interface BulkUploadService {
 

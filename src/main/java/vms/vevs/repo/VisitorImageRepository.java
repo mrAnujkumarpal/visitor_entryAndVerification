@@ -6,4 +6,6 @@ import vms.vevs.entity.visitor.VisitorImage;
 
 @Repository
 public interface VisitorImageRepository extends JpaRepository<VisitorImage,Long> {
+
+    VisitorImage  findByVisitorCode(String visitorCode);
 }

@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 import vms.vevs.common.exception.ResourceNotFoundException;
 import vms.vevs.common.exception.VmsException;
@@ -32,6 +33,7 @@ import vms.vevs.security.JwtTokenProvider;
 import vms.vevs.service.UserService;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -146,7 +148,13 @@ public class UserController {
         return response;
     }
 
-
+    @PostMapping(value = "updateUserProfilePhoto")
+    public HttpResponse<?> updateUserProfilePhoto( @RequestParam MultipartFile photo
+            , @RequestHeader("loggedInUserId") Long loggedInUserId) throws IOException {
+        HttpResponse<Users> response = new HttpResponse<>();
+        response.setResponseObject(userService.updateUserProfilePhoto(photo, loggedInUserId));
+        return response;
+    }
     @PutMapping(value = "update")
     public HttpResponse<?> updateUser(@RequestBody Users userTobeUpdate
             , @RequestHeader("loggedInUserId") Long loggedInUserId) {

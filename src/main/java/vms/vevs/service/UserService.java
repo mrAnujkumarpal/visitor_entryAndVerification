@@ -1,11 +1,13 @@
 package vms.vevs.service;
 
+import org.springframework.web.multipart.MultipartFile;
 import vms.vevs.entity.common.Role;
 import vms.vevs.entity.employee.ResetPassword;
 import vms.vevs.entity.employee.Users;
 import vms.vevs.entity.virtualObject.IdentityAvailability;
 import vms.vevs.entity.virtualObject.UserVO;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,4 +36,6 @@ public interface UserService {
     ResetPassword forgotPassword(String email);
 
     ResetPassword resetPassword(ResetPassword resetPassword);
+
+    Users updateUserProfilePhoto(MultipartFile photo, Long loggedInUserId) throws IOException;
 }

@@ -24,9 +24,12 @@ public class Visitor extends BaseEntity   {
     private String visitorStatus; //VISITOR_STATUS
     private String cardNoGivenToVisitor;
 
+    @Lob
+    private byte[] visitorImage;
+
+
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     private Users hostEmployee;
-
 
     @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     private Location location;

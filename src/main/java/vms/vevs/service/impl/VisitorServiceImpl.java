@@ -70,7 +70,7 @@ public class VisitorServiceImpl implements VisitorService {
             visitorImage.setVisitorImage(newVisitor.getVisitorImage());
             imageRepository.save(visitorImage);
         }*/
-        Visitor newlyAddedVisitor= visitorRepository.save(visitor);
+        Visitor newlyAddedVisitor = visitorRepository.save(visitor);
         notifyToHostEmployee(newlyAddedVisitor);
         return newlyAddedVisitor;
     }
@@ -80,42 +80,50 @@ public class VisitorServiceImpl implements VisitorService {
     }
 
 
-
-
     @Override
     public List<Visitor> allVisitors() {
-        return visitorRepository.findAllByOrderByIdDesc();
+        List<Visitor> visitors = visitorRepository.findAllByOrderByIdDesc();
+        for (Visitor visitor : visitors) {
+            VisitorImage image = imageRepository.findByVisitorCode(visitor.getVisitorCode());
+            visitor.setVisitorImage(image.getPhoto());
+        }
+        return visitors;
     }
 
     @Override
     public Visitor getVisitorById(long id) {
-        return visitorRepository.getById(id);
+        Visitor visitor = visitorRepository.getById(id);
+        VisitorImage image = imageRepository.findByVisitorCode(visitor.getVisitorCode());
+        visitor.setVisitorImage(image.getPhoto());
+        return visitor;
     }
 
     @Override
-    public Visitor updateVisitor(Visitor visitor,Long loggedInUserId) {
+    public Visitor updateVisitor(Visitor visitor, Long loggedInUserId) {
 
         visitor.setVisitorStatus(VMSEnum.VISITOR_STATUS.CHECK_OUT.name());
         visitor.setCardNoGivenToVisitor("Token-001");
         visitor.setModifiedOn(VmsUtils.currentTime());
         visitor.setModifiedBy(loggedInUserId);
-        return visitorRepository.save(visitor);
+        Visitor updateVisitor = visitorRepository.save(visitor);
+        VisitorImage image = imageRepository.findByVisitorCode(updateVisitor.getVisitorCode());
+        visitor.setVisitorImage(image.getPhoto());
+        return visitor;
     }
 
     @Override
     public List<String> purposeOfVisit() {
-        return  Stream.of(VMSEnum.PURPOSE_OF_VISIT.values())
-                        .map(Enum::name)
-                        .collect(Collectors.toList());
+        return Stream.of(VMSEnum.PURPOSE_OF_VISIT.values())
+                .map(Enum::name)
+                .collect(Collectors.toList());
     }
 
     @Override
     public VisitorImage saveVisitorImage(String visitorCode, MultipartFile visitorImage) throws IOException {
 
         VisitorImage image = new VisitorImage();
-        image.setVisitorCode(visitorCode);
         image.setPhoto(visitorImage.getBytes());
-
+        image.setVisitorCode(visitorCode);
         return imageRepository.save(image);
     }
 

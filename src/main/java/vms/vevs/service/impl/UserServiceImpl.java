@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import vms.vevs.common.util.VmsConstants;
 import vms.vevs.common.util.VmsUtils;
 import vms.vevs.entity.common.Role;
@@ -18,6 +19,7 @@ import vms.vevs.repo.UserRepository;
 import vms.vevs.service.UserService;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
@@ -168,6 +170,15 @@ public class UserServiceImpl implements UserService {
         resetPassword.setMessage(messageSource.getMessage("success.user.password.update"));
         return resetPassword;
 
+    }
+
+    @Override
+    public Users updateUserProfilePhoto(MultipartFile photo, Long loggedInUserId) throws IOException {
+        Users dbUser = userRepository.getById(loggedInUserId);
+        dbUser.setProfilePhoto(photo.getBytes());
+        dbUser.setModifiedOn(VmsUtils.currentTime());
+        dbUser.setModifiedBy(loggedInUserId);
+        return userRepository.save(dbUser);
     }
 
     private String generateToken() {
