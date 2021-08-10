@@ -7,13 +7,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vms.vevs.controller.validator.BulkValidator;
 import vms.vevs.entity.bulk.BulkUploadRecordsFile;
-import vms.vevs.entity.common.Location;
-import vms.vevs.entity.common.VMSEnum;
 import vms.vevs.entity.virtualObject.BulkRejectVO;
 import vms.vevs.entity.virtualObject.HttpResponse;
 import vms.vevs.service.BulkUploadService;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -44,16 +41,15 @@ public class BulkUploadController {
         return response;
     }
 
-    @GetMapping("/validate/{uploadedFileId}/{moduleName}")
-    public HttpResponse validateFileRecord(@PathVariable("moduleName") String moduleName,
-                                           @PathVariable("uploadedFileId") Long uploadedFileId,
+    @GetMapping("/validate/{uploadedFileId}")
+    public HttpResponse validateFileRecord(@PathVariable("uploadedFileId") Long uploadedFileId,
                                            @RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<BulkUploadRecordsFile> response = new HttpResponse<>();
-        List<String> validateNewFileData = validator.validateNewFileData(uploadedFileId, moduleName);
+        List<String> validateNewFileData = validator.validateNewFileData(uploadedFileId);
         if (!validateNewFileData.isEmpty()) {
             return new HttpResponse().errorResponse(validateNewFileData);
         }
-        BulkUploadRecordsFile validateData = bulkUploadService.validateFileRecord(uploadedFileId, moduleName, loggedInUserId);
+        BulkUploadRecordsFile validateData = bulkUploadService.validateFileRecord(uploadedFileId, loggedInUserId);
         response.setResponseObject(validateData);
         return response;
     }
@@ -72,16 +68,15 @@ public class BulkUploadController {
     }
 
 
-    @GetMapping("/submit/{uploadedFileId}/{moduleName}")
-    public HttpResponse submitFileRecord(@PathVariable("moduleName") String moduleName,
-                                         @PathVariable("uploadedFileId") Long uploadedFileId,
+    @GetMapping("/submit/{uploadedFileId}")
+    public HttpResponse submitFileRecord(@PathVariable("uploadedFileId") Long uploadedFileId,
                                          @RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<BulkUploadRecordsFile> response = new HttpResponse<>();
-        List<String> submitNewFileData = validator.submitNewFileData(uploadedFileId, moduleName);
+        List<String> submitNewFileData = validator.submitNewFileData(uploadedFileId);
         if (!submitNewFileData.isEmpty()) {
             return new HttpResponse().errorResponse(submitNewFileData);
         }
-        BulkUploadRecordsFile validateData = bulkUploadService.submitFileRecord(uploadedFileId, moduleName, loggedInUserId);
+        BulkUploadRecordsFile validateData = bulkUploadService.submitFileRecord(uploadedFileId, loggedInUserId);
         response.setResponseObject(validateData);
         return response;
     }

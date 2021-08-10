@@ -36,10 +36,14 @@ public class BulkHelper {
         BulkUserRecords userResponse = new BulkUserRecords();
 
         Map<String, String> headerMap = new HashMap<>();
-        headerMap.put("LOCATIONNAME", "locationName");
-        headerMap.put("CONTACTNUMBER", "contactNumber");
-        headerMap.put("ADDRESS", "address");
-        headerMap.put("COUNTRY", "country");
+        headerMap.put("NAME", "name");
+        headerMap.put("USERNAME", "username");
+        headerMap.put("DESIGNATION", "designation");
+        headerMap.put("MOBILENUMBER", "mobilenumber");
+        headerMap.put("EMPLOYEECODE", "employeecode");
+        headerMap.put("EMAIL", "email");
+        headerMap.put("BASELOCATION", "baselocation");
+
 
         for (int i = 0; i < values.length; i++) {
             String value = values[i];
@@ -107,6 +111,7 @@ public class BulkHelper {
 
         return locationResponse;
     }
+
     public static <K, V> K getKey(Map<String, String> map, int value, String headerColumn) {
 
         for (Map.Entry<String, String> entry : map.entrySet()) {

@@ -102,7 +102,7 @@ public class Validator extends ValidatorHelper {
         return validateMessage;
     }
 
-    public List<String> validateUser(UserVO user) {
+    public List<String> validateNewUser(UserVO user) {
         List<String> validateMessage = new ArrayList<>();
 
         String name = user.getName();

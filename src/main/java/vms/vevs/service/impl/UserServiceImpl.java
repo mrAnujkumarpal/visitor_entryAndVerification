@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Users saveUser(UserVO userVO, Long loggedInUserId, Role userRole) {
 
-        Users user=new Users();
+        Users user = new Users();
 
         user.setEnable(true);
         user.setName(userVO.getName());
@@ -76,7 +76,9 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(userVO.getPassword()));
         user.setBaseLocation(locRepository.getById(userVO.getBaseLocationId()));
-        user.setCurrentLocation(locRepository.getById(userVO.getCurrentLocationId()));
+        if (null != userVO.getCurrentLocationId()) {
+            user.setCurrentLocation(locRepository.getById(userVO.getCurrentLocationId()));
+        }
         return userRepository.save(user);
     }
 
@@ -118,6 +120,7 @@ public class UserServiceImpl implements UserService {
     public boolean isUserExist(Users user) {
         return userRepository.existsById(user.getId());
     }
+
     @Override
     public List<Users> employeesByLocationId(long locId) {
 
@@ -130,20 +133,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResetPassword forgotPassword(String email) {
 
-            Optional<Users> userOptional = userRepository.findByEmail(email);
+        Optional<Users> userOptional = userRepository.findByEmail(email);
 
-            Users user = userOptional.get();
-            ResetPassword password=new ResetPassword();
+        Users user = userOptional.get();
+        ResetPassword password = new ResetPassword();
 
-            password.setUserId(user.getId());
-            password.setUserEmail(user.getEmail());
-            password.setToken(generateToken());
-            password.setTokenCreationTime(VmsUtils.currentTime());
-           return resetPasswordRepository.save(password);
+        password.setUserId(user.getId());
+        password.setUserEmail(user.getEmail());
+        password.setToken(generateToken());
+        password.setTokenCreationTime(VmsUtils.currentTime());
+        return resetPasswordRepository.save(password);
 
 
-        }
-
+    }
 
 
     @Override

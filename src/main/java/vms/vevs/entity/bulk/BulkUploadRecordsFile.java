@@ -48,6 +48,7 @@ public class BulkUploadRecordsFile {
     private Long createdBy;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
     private Timestamp createdOn;
+
     @JsonIgnore
     private Long modifiedBy;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")

@@ -11,9 +11,9 @@ public interface BulkUploadService {
 
     BulkUploadRecordsFile uploadNewFileData(Long userId, MultipartFile file,String fileName,String module) throws Exception;
 
-    BulkUploadRecordsFile validateFileRecord(Long uploadedFileId,String moduleName, Long loggedInUserId);
+    BulkUploadRecordsFile validateFileRecord(Long uploadedFileId, Long loggedInUserId);
 
     BulkUploadRecordsFile rejectFileRecord(BulkRejectVO rejectVO, Long loggedInUserId);
 
-    BulkUploadRecordsFile submitFileRecord(Long uploadedFileId, String moduleName, Long loggedInUserId);
+    BulkUploadRecordsFile submitFileRecord(Long uploadedFileId, Long loggedInUserId);
 }

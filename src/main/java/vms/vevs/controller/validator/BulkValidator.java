@@ -11,8 +11,8 @@ import vms.vevs.entity.bulk.BulkUploadRecordsFile;
 import vms.vevs.entity.bulk.BulkUserRecords;
 import vms.vevs.entity.common.Location;
 import vms.vevs.entity.common.VMSEnum;
-import vms.vevs.entity.employee.Users;
 import vms.vevs.entity.virtualObject.BulkRejectVO;
+import vms.vevs.entity.virtualObject.UserVO;
 import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.repo.bulk.BulkLocationRecordsRepository;
 import vms.vevs.repo.bulk.BulkUploadRecordsFileRepository;
@@ -131,7 +131,7 @@ public class BulkValidator extends ValidatorHelper {
 
     }
 
-    public List<String> validateNewFileData(Long uploadedFileId, String moduleName) {
+    public List<String> validateNewFileData(Long uploadedFileId) {
         List<String> validateMessage = new ArrayList<>();
         if (uploadedFileId == null) {
             validateMessage.add(messageSource.getMessage("bulk.validate.error.na.uploadedFileId"));
@@ -142,15 +142,15 @@ public class BulkValidator extends ValidatorHelper {
             validateMessage.add(messageSource.getMessage("bulk.validate.error.na.records"));
             return validateMessage;
         }
-
-        if (!StringUtils.equalsIgnoreCase(fileRecord.getStatus(), VMSEnum.BULK_UPLOAD_STATUS.PENDING.name())) {
-            validateMessage.add(messageSource.getMessage("bulk.validate.error.status.mismatch"));
+        String oldStatus = VMSEnum.BULK_UPLOAD_STATUS.PENDING.name();
+        if (!StringUtils.equalsIgnoreCase(fileRecord.getStatus(), oldStatus)) {
+            validateMessage.add(messageSource.getMessage("bulk.validate.error.status.mismatch", new Object[]{oldStatus}));
         }
         String status = VMSEnum.BULK_UPLOAD_STATUS.VALIDATE.name();
-        if (StringUtils.equalsIgnoreCase(fileRecord.getStatus(),status )) {
+        if (StringUtils.equalsIgnoreCase(fileRecord.getStatus(), status)) {
             validateMessage.add(messageSource.getMessage("bulk.validate.error.status.already", new Object[]{status}));
         }
-
+        String moduleName = fileRecord.getModule();
         if (StringUtils.equalsIgnoreCase(moduleName, VMSEnum.MODULE_NAME.LOCATION.name())) {
             validateMessage.addAll(validateLocationRecordOfFile(validateMessage, uploadedFileId));
         } else {
@@ -161,10 +161,18 @@ public class BulkValidator extends ValidatorHelper {
 
     private Collection<String> validateUserRecordOfFile(List<String> validateMessage, Long uploadedFileId) {
         List<BulkUserRecords> usersRecords = userRecordsRepository.findAllByUploadedFileId(uploadedFileId);
-        for (BulkUserRecords user : usersRecords) {
-            Users newUser = new Users();
+        for (BulkUserRecords userFromFile : usersRecords) {
+            UserVO newUser = new UserVO();
 
-            validateMessage.addAll(validator.createUser(newUser));
+            newUser.setName(userFromFile.getName());
+            newUser.setEmail(userFromFile.getEmail());
+            newUser.setUsername(userFromFile.getUserName());
+            newUser.setMobileNo(userFromFile.getMobileNumber());
+            newUser.setDesignation(userFromFile.getDesignation());
+            newUser.setEmployeeCode(userFromFile.getEmployeeCode());
+            newUser.setPassword("admin");
+            newUser.setRole(userFromFile.getRole());
+            validateMessage.addAll(validator.validateNewUser(newUser));
         }
 
         return validateMessage;
@@ -172,12 +180,12 @@ public class BulkValidator extends ValidatorHelper {
 
     private List<String> validateLocationRecordOfFile(List<String> validateMessage, Long uploadedFileId) {
         List<BulkLocationRecords> locationRecords = bulkLocationRecordsRepository.findAllByUploadedFileId(uploadedFileId);
-        for (BulkLocationRecords location : locationRecords) {
+        for (BulkLocationRecords locationFromFile : locationRecords) {
             Location newLocation = new Location();
-            newLocation.setName(location.getLocationName());
-            newLocation.setLocationAddress(location.getAddress());
-            newLocation.setLocationContactNo(location.getContactNumber());
-            newLocation.setCountry(location.getCountry());
+            newLocation.setName(locationFromFile.getLocationName());
+            newLocation.setLocationAddress(locationFromFile.getAddress());
+            newLocation.setLocationContactNo(locationFromFile.getContactNumber());
+            newLocation.setCountry(locationFromFile.getCountry());
             validateMessage.addAll(validator.createLocation(newLocation));
         }
         return validateMessage;
@@ -197,13 +205,13 @@ public class BulkValidator extends ValidatorHelper {
             return validateMessage;
         }
         String status = VMSEnum.BULK_UPLOAD_STATUS.REJECT.name();
-        if (StringUtils.equalsIgnoreCase(fileRecord.getStatus(),status )) {
+        if (StringUtils.equalsIgnoreCase(fileRecord.getStatus(), status)) {
             validateMessage.add(messageSource.getMessage("bulk.validate.error.status.already", new Object[]{status}));
         }
         return validateMessage;
     }
 
-    public List<String> submitNewFileData(Long uploadedFileId, String moduleName) {
+    public List<String> submitNewFileData(Long uploadedFileId) {
         List<String> validateMessage = new ArrayList<>();
         if (uploadedFileId == null) {
             validateMessage.add(messageSource.getMessage("bulk.validate.error.na.uploadedFileId"));
@@ -215,14 +223,15 @@ public class BulkValidator extends ValidatorHelper {
             return validateMessage;
         }
 
-        if (!StringUtils.equalsIgnoreCase(fileRecord.getStatus(), VMSEnum.BULK_UPLOAD_STATUS.VALIDATE.name())) {
-            validateMessage.add(messageSource.getMessage("bulk.validate.error.status.mismatch"));
+        String oldStatus = VMSEnum.BULK_UPLOAD_STATUS.VALIDATE.name();
+        if (!StringUtils.equalsIgnoreCase(fileRecord.getStatus(), oldStatus)) {
+            validateMessage.add(messageSource.getMessage("bulk.validate.error.status.mismatch", new Object[]{oldStatus}));
         }
         String status = VMSEnum.BULK_UPLOAD_STATUS.SUBMITTED.name();
-        if (StringUtils.equalsIgnoreCase(fileRecord.getStatus(),status )) {
+        if (StringUtils.equalsIgnoreCase(fileRecord.getStatus(), status)) {
             validateMessage.add(messageSource.getMessage("bulk.validate.error.status.already", new Object[]{status}));
         }
-
+        String moduleName = fileRecord.getModule();
         if (StringUtils.equalsIgnoreCase(moduleName, VMSEnum.MODULE_NAME.LOCATION.name())) {
             validateMessage.addAll(validateLocationRecordOfFile(validateMessage, uploadedFileId));
         } else {

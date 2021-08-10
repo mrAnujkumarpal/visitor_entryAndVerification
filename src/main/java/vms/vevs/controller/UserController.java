@@ -120,22 +120,8 @@ public class UserController {
         HttpResponse<Users> response = new HttpResponse<>();
 
         try {
-            String roleName = user.getRole();
-            roleName = roleName.toUpperCase();
-            Role userRole = null;
-
-            if (StringUtils.equals(roleName, RoleName.USER.name())) {
-                userRole = roleRepository.findByName(RoleName.USER)
-                        .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
-            } else if (StringUtils.equals(roleName, RoleName.ADMIN.name())) {
-                userRole = roleRepository.findByName(RoleName.ADMIN)
-                        .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
-            } else if (StringUtils.equals(roleName, RoleName.FRONT_DESK.name())) {
-                userRole = roleRepository.findByName(RoleName.FRONT_DESK)
-                        .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
-            }
-
-            List<String> validationMsgList = validator.validateUser(user);
+            Role userRole =getUserRole(user.getRole());
+            List<String> validationMsgList = validator.validateNewUser(user);
             if (!validationMsgList.isEmpty()) {
                 return new HttpResponse().errorResponse(validationMsgList);
             }
@@ -226,6 +212,25 @@ public class UserController {
     @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
     public void sendSms(@Valid @RequestBody SmsRequest smsRequest) {
         service.sendSms(smsRequest);
+    }
+
+
+
+    Role getUserRole(String roleName) {
+        roleName = roleName.toUpperCase();
+        Role userRole = null;
+
+        if (StringUtils.equals(roleName, RoleName.USER.name())) {
+            userRole = roleRepository.findByName(RoleName.USER)
+                    .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
+        } else if (StringUtils.equals(roleName, RoleName.ADMIN.name())) {
+            userRole = roleRepository.findByName(RoleName.ADMIN)
+                    .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
+        } else if (StringUtils.equals(roleName, RoleName.FRONT_DESK.name())) {
+            userRole = roleRepository.findByName(RoleName.FRONT_DESK)
+                    .orElseThrow(() -> new VmsException(messageSource.getMessage("user.error.role.not.set")));
+        }
+        return userRole;
     }
 
 }
