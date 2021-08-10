@@ -3,7 +3,7 @@ package vms.vevs.service.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vms.vevs.common.util.VmsUtils;
+import vms.vevs.common.util.VMSUtils;
 import vms.vevs.controller.VMSHelper;
 import vms.vevs.entity.common.RoleName;
 import vms.vevs.entity.employee.Users;
@@ -65,15 +65,15 @@ public class RepostServiceImpl implements ReportService {
     }
 
     private List<Visitor> getVisitorList(ReportRequestVO request) {
-        Timestamp to = VmsUtils.endOfTheDay(request.getToDate());
-        Timestamp from = VmsUtils.startOfTheDay(request.getFromDate());
+        Timestamp to = VMSUtils.endOfTheDay(request.getToDate());
+        Timestamp from = VMSUtils.startOfTheDay(request.getFromDate());
         return visitorRepository.findAllByCreatedOnBetween(from, to);
     }
 
     private List<Visitor> todayVisitorList() {
-        Timestamp today = VmsUtils.currentTime();
-        Timestamp to = VmsUtils.endOfTheDay(today);
-        Timestamp from = VmsUtils.startOfTheDay(today);
+        Timestamp today = VMSUtils.currentTime();
+        Timestamp to = VMSUtils.endOfTheDay(today);
+        Timestamp from = VMSUtils.startOfTheDay(today);
         return visitorRepository.findAllByCreatedOnBetween(from, to);
     }
 

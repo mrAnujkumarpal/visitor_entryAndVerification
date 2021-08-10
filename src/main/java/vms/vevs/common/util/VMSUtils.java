@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-public class VmsUtils {
+public class VMSUtils {
 
 
     public static String visitorCode() {return VmsConstants.ORG_CODE + System.currentTimeMillis(); }

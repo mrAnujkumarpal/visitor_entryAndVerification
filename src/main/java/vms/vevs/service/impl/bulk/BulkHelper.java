@@ -16,7 +16,7 @@ import java.util.Map;
 public class BulkHelper {
 
 
-    protected List<BulkLocationRecords> locationRecordFromFile(List<String[]> fileDataList, String[] headerColumns, Timestamp currentTime, String module) throws Exception {
+    protected List<BulkLocationRecords> locationRecordFromFile(List<String[]> fileDataList, String[] headerColumns) throws Exception {
         List<BulkLocationRecords> bulkResponseList = new ArrayList<>();
         for (String[] fileData : fileDataList) {
             bulkResponseList.add(locationResponse(fileData, headerColumns));
@@ -24,7 +24,7 @@ public class BulkHelper {
         return bulkResponseList;
     }
 
-    protected List<BulkUserRecords> userRecordFromFile(List<String[]> fileDataList, String[] headerColumns, Timestamp currentTime, String module) throws Exception {
+    protected List<BulkUserRecords> userRecordFromFile(List<String[]> fileDataList, String[] headerColumns) throws Exception {
         List<BulkUserRecords> dataList = new ArrayList<>();
         for (String[] fileData : fileDataList) {
             dataList.add(userResponse(fileData, headerColumns));
@@ -42,13 +42,12 @@ public class BulkHelper {
         headerMap.put("MOBILENUMBER", "mobilenumber");
         headerMap.put("EMPLOYEECODE", "employeecode");
         headerMap.put("EMAIL", "email");
-        headerMap.put("BASELOCATION", "baselocation");
+        headerMap.put("BASELOCATIONID", "baselocationid");
 
 
         for (int i = 0; i < values.length; i++) {
             String value = values[i];
             String header = headerColumns[i];
-            String variableName = headerMap.get(header);
 
             Field field = userResponse.getClass().getDeclaredField(header);
             if (field != null) {
@@ -63,6 +62,9 @@ public class BulkHelper {
                     } else if (type.equalsIgnoreCase("BigDecimal")) {
                         BigDecimal decimalVal = new BigDecimal(value);
                         field.set(userResponse, decimalVal);
+                    }else if (type.equalsIgnoreCase("Long")) {
+                        Long longVal = new Long(value);
+                        field.set(userResponse, longVal);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -138,14 +140,26 @@ public class BulkHelper {
         return record;
     }
 
-    protected BulkUploadRecordsFile markAsValidateFileRecord(BulkUploadRecordsFile record, Long loggedInUserId, Timestamp currentTime) {
+    protected BulkUploadRecordsFile markAsValidateFileRecordSuccess(BulkUploadRecordsFile record, Long loggedInUserId, Timestamp currentTime) {
         record.setValidate(true);
         record.setValidateOn(currentTime);
         record.setValidateBy(loggedInUserId);
         record.setStatus(VMSEnum.BULK_UPLOAD_STATUS.VALIDATE.name());
         return record;
     }
+    protected BulkUploadRecordsFile markAsValidateFileRecordFailed( List<String> issuesList,BulkUploadRecordsFile record, Long userId, Timestamp now) {
 
+        String issues = issuesList.stream().map(e -> e.toString()).reduce(" ", String::concat);
+
+        record.setValidate(false);
+        record.setValidationIssues(issues);
+        record.setValidateOn(now);
+        record.setValidateBy(userId);
+        record.setValidationIssueFound(true);
+        record.setStatus(VMSEnum.BULK_UPLOAD_STATUS.VALIDATE.name());
+        return record;
+
+    }
     protected BulkUploadRecordsFile markAsRejectFileRecord(BulkUploadRecordsFile record, Long loggedInUserId, Timestamp currentTime) {
         record.setReject(true);
         record.setRejectedOn(currentTime);

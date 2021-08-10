@@ -6,7 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vms.vevs.common.util.VmsConstants;
-import vms.vevs.common.util.VmsUtils;
+import vms.vevs.common.util.VMSUtils;
 import vms.vevs.entity.common.Role;
 import vms.vevs.entity.employee.ResetPassword;
 import vms.vevs.entity.employee.Users;
@@ -20,7 +20,6 @@ import vms.vevs.service.UserService;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +70,7 @@ public class UserServiceImpl implements UserService {
         user.setEmployeeCode(userVO.getEmployeeCode());
 
         user.setCreatedBy(loggedInUserId);
-        user.setCreatedOn(VmsUtils.currentTime());
+        user.setCreatedOn(VMSUtils.currentTime());
         user.setRoles(Collections.singleton(userRole));
 
         user.setPassword(passwordEncoder.encode(userVO.getPassword()));
@@ -87,7 +86,7 @@ public class UserServiceImpl implements UserService {
 
         Users dbUser = userRepository.getById(userTobeUpdate.getId());
 
-        dbUser.setModifiedOn(VmsUtils.currentTime());
+        dbUser.setModifiedOn(VMSUtils.currentTime());
         dbUser.setModifiedBy(loggedInUserId);
         return userRepository.save(dbUser);
     }
@@ -141,7 +140,7 @@ public class UserServiceImpl implements UserService {
         password.setUserId(user.getId());
         password.setUserEmail(user.getEmail());
         password.setToken(generateToken());
-        password.setTokenCreationTime(VmsUtils.currentTime());
+        password.setTokenCreationTime(VMSUtils.currentTime());
         return resetPasswordRepository.save(password);
 
 
@@ -178,7 +177,7 @@ public class UserServiceImpl implements UserService {
     public Users updateUserProfilePhoto(MultipartFile photo, Long loggedInUserId) throws IOException {
         Users dbUser = userRepository.getById(loggedInUserId);
         dbUser.setProfilePhoto(photo.getBytes());
-        dbUser.setModifiedOn(VmsUtils.currentTime());
+        dbUser.setModifiedOn(VMSUtils.currentTime());
         dbUser.setModifiedBy(loggedInUserId);
         return userRepository.save(dbUser);
     }
@@ -189,7 +188,7 @@ public class UserServiceImpl implements UserService {
         return token.append(VmsConstants.ORG_CODE.toString())
                 .append(UUID.randomUUID().toString())
                 .append(UUID.randomUUID().toString())
-                .append(VmsUtils.createOTP()).toString();
+                .append(VMSUtils.createOTP()).toString();
     }
 
 /*

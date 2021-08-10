@@ -2,30 +2,23 @@ package vms.vevs.controller;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
-import vms.vevs.common.util.VmsUtils;
 import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.common.AppOTP;
-import vms.vevs.entity.common.RoleName;
-import vms.vevs.entity.employee.Users;
 import vms.vevs.entity.virtualObject.HttpResponse;
 import vms.vevs.entity.virtualObject.VisitorVO;
 import vms.vevs.entity.visitor.Visitor;
 import vms.vevs.entity.visitor.VisitorImage;
 import vms.vevs.service.AppOTPService;
-import vms.vevs.service.UserService;
 import vms.vevs.service.VisitorService;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/visitor/")

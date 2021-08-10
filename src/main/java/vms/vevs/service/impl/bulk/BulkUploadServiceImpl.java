@@ -7,8 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vms.vevs.common.exception.VmsException;
-import vms.vevs.common.util.VmsUtils;
+import vms.vevs.common.util.VMSUtils;
 import vms.vevs.controller.validator.BulkValidator;
+import vms.vevs.controller.validator.Validator;
 import vms.vevs.entity.bulk.BulkLocationRecords;
 import vms.vevs.entity.bulk.BulkUploadRecordsFile;
 import vms.vevs.entity.bulk.BulkUserRecords;
@@ -18,6 +19,7 @@ import vms.vevs.entity.common.RoleName;
 import vms.vevs.entity.common.VMSEnum;
 import vms.vevs.entity.employee.Users;
 import vms.vevs.entity.virtualObject.BulkRejectVO;
+import vms.vevs.entity.virtualObject.UserVO;
 import vms.vevs.i18.MessageByLocaleService;
 import vms.vevs.repo.LocationRepository;
 import vms.vevs.repo.RoleRepository;
@@ -46,7 +48,7 @@ public class BulkUploadServiceImpl extends BulkHelper implements BulkUploadServi
     BulkUserRecordsRepository userRecordsRepository;
 
     @Autowired
-    BulkValidator validator;
+    BulkValidator bulkValidator;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -63,20 +65,26 @@ public class BulkUploadServiceImpl extends BulkHelper implements BulkUploadServi
     @Autowired
     LocationRepository locationRepository;
 
+    @Autowired
+    private BulkLocationRecordsRepository bulkLocationRecordsRepository;
+
+    @Autowired
+    Validator validator;
+
     @Override
     public BulkUploadRecordsFile uploadNewFileData(Long userId, MultipartFile file, String fileName, String module) throws Exception {
 
-        Timestamp currentTime = VmsUtils.currentTime();
-        List<String[]> fileDataList = validator.fetchFileDataRowWise(file);
+        Timestamp currentTime = VMSUtils.currentTime();
+        List<String[]> fileDataList = bulkValidator.fetchFileDataRowWise(file);
         String[] headerColumns = fileDataList.remove(0);
         List<BulkLocationRecords> bulkLocationList = new ArrayList<>();
         List<BulkUserRecords> bulkUserList = new ArrayList<>();
         int listSize = 0;
         if (StringUtils.equalsIgnoreCase(module, VMSEnum.MODULE_NAME.LOCATION.name())) {
-            bulkLocationList = locationRecordFromFile(fileDataList, headerColumns, currentTime, module);
+            bulkLocationList = locationRecordFromFile(fileDataList, headerColumns);
             listSize = bulkLocationList.size();
         } else {
-            bulkUserList = userRecordFromFile(fileDataList, headerColumns, currentTime, module);
+            bulkUserList = userRecordFromFile(fileDataList, headerColumns);
             listSize = bulkUserList.size();
         }
         String status = VMSEnum.BULK_UPLOAD_STATUS.PENDING.name();
@@ -106,14 +114,14 @@ public class BulkUploadServiceImpl extends BulkHelper implements BulkUploadServi
 
     @Override
     public BulkUploadRecordsFile validateFileRecord(Long uploadedFileId, Long loggedInUserId) {
-        Timestamp currentTime = VmsUtils.currentTime();
+        Timestamp currentTime = VMSUtils.currentTime();
         BulkUploadRecordsFile record = fileUploadRepository.getById(uploadedFileId);
         return updateBulkRecordsAsValidate(record, loggedInUserId, currentTime);
     }
 
     @Override
     public BulkUploadRecordsFile rejectFileRecord(BulkRejectVO rejectVO, Long userId) {
-        Timestamp now = VmsUtils.currentTime();
+        Timestamp now = VMSUtils.currentTime();
         Long uploadedFileId = rejectVO.getUploadedFileId();
         BulkUploadRecordsFile record = fileUploadRepository.getById(uploadedFileId);
         String rejectReason = rejectVO.getRejectReason();
@@ -123,7 +131,7 @@ public class BulkUploadServiceImpl extends BulkHelper implements BulkUploadServi
 
     @Override
     public BulkUploadRecordsFile submitFileRecord(Long uploadedFileId, Long loggedInUserId) {
-        Timestamp currentTime = VmsUtils.currentTime();
+        Timestamp currentTime = VMSUtils.currentTime();
         BulkUploadRecordsFile record = fileUploadRepository.getById(uploadedFileId);
         String module = record.getModule();
         if (StringUtils.equalsIgnoreCase(module, VMSEnum.MODULE_NAME.LOCATION.name())) {
@@ -143,8 +151,53 @@ public class BulkUploadServiceImpl extends BulkHelper implements BulkUploadServi
 
     protected BulkUploadRecordsFile updateBulkRecordsAsValidate(BulkUploadRecordsFile record, Long userId, Timestamp now) {
         markAsModified(record, userId, now);
-        markAsValidateFileRecord(record, userId, now);
+        String moduleName = record.getModule();
+        List<String> issuesList = new ArrayList<>();
+        if (StringUtils.equalsIgnoreCase(moduleName, VMSEnum.MODULE_NAME.LOCATION.name())) {
+            validateLocationRecordOfFile(issuesList,record.getId());
+        } else {
+            validateUserRecordOfFile(issuesList,record.getId());
+        }
+        if(!issuesList.isEmpty()){
+            markAsValidateFileRecordFailed(issuesList,record, userId, now);
+        }else {
+            markAsValidateFileRecordSuccess(record, userId, now);
+        }
         return fileUploadRepository.save(record);
+    }
+
+    private List<String> validateUserRecordOfFile(List<String> issuesList, Long id) {
+        List<BulkUserRecords> usersRecords = userRecordsRepository.findAllByUploadedFileId(id);
+        for (BulkUserRecords userFromFile : usersRecords) {
+            UserVO newUser = new UserVO();
+
+            newUser.setName(userFromFile.getName());
+            newUser.setEmail(userFromFile.getEmail());
+            newUser.setUsername(userFromFile.getUserName());
+            newUser.setMobileNo(userFromFile.getMobileNumber());
+            newUser.setDesignation(userFromFile.getDesignation());
+            newUser.setEmployeeCode(userFromFile.getEmployeeCode());
+            newUser.setPassword("Anuj@Kumar1");
+            newUser.setRole((userFromFile.getRole()).toUpperCase());
+            issuesList.addAll(validator.validateNewUser(newUser));
+        }
+
+        return issuesList;
+    }
+
+
+    private List<String> validateLocationRecordOfFile(List<String> issuesList,Long id) {
+
+        List<BulkLocationRecords> locationRecords = bulkLocationRecordsRepository.findAllByUploadedFileId(id);
+        for (BulkLocationRecords locationFromFile : locationRecords) {
+            Location newLocation = new Location();
+            newLocation.setName(locationFromFile.getLocationName());
+            newLocation.setLocationAddress(locationFromFile.getAddress());
+            newLocation.setLocationContactNo(locationFromFile.getContactNumber());
+            newLocation.setCountry(locationFromFile.getCountry());
+            issuesList.addAll(validator.createLocation(newLocation));
+        }
+        return issuesList;
     }
 
 

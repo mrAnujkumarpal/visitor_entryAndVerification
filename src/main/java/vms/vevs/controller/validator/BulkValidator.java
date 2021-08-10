@@ -6,42 +6,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import vms.vevs.entity.bulk.BulkLocationRecords;
 import vms.vevs.entity.bulk.BulkUploadRecordsFile;
-import vms.vevs.entity.bulk.BulkUserRecords;
-import vms.vevs.entity.common.Location;
 import vms.vevs.entity.common.VMSEnum;
 import vms.vevs.entity.virtualObject.BulkRejectVO;
-import vms.vevs.entity.virtualObject.UserVO;
 import vms.vevs.i18.MessageByLocaleService;
-import vms.vevs.repo.bulk.BulkLocationRecordsRepository;
 import vms.vevs.repo.bulk.BulkUploadRecordsFileRepository;
-import vms.vevs.repo.bulk.BulkUserRecordsRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Component
 @Configurable
 public class BulkValidator extends ValidatorHelper {
 
+    @Autowired
+    private Validator validator;
 
     @Autowired
-    MessageByLocaleService messageSource;
-
-    @Autowired
-    BulkUserRecordsRepository userRecordsRepository;
+    private MessageByLocaleService messageSource;
 
     @Autowired
     private BulkUploadRecordsFileRepository fileUploadRepository;
-
-    @Autowired
-    private BulkLocationRecordsRepository bulkLocationRecordsRepository;
-
-    @Autowired
-    Validator validator;
 
 
     public List<String> validateNewFile(MultipartFile file, String moduleName) throws IOException {
@@ -150,46 +136,9 @@ public class BulkValidator extends ValidatorHelper {
         if (StringUtils.equalsIgnoreCase(fileRecord.getStatus(), status)) {
             validateMessage.add(messageSource.getMessage("bulk.validate.error.status.already", new Object[]{status}));
         }
-        String moduleName = fileRecord.getModule();
-        if (StringUtils.equalsIgnoreCase(moduleName, VMSEnum.MODULE_NAME.LOCATION.name())) {
-            validateMessage.addAll(validateLocationRecordOfFile(validateMessage, uploadedFileId));
-        } else {
-            validateMessage.addAll(validateUserRecordOfFile(validateMessage, uploadedFileId));
-        }
         return validateMessage;
     }
 
-    private Collection<String> validateUserRecordOfFile(List<String> validateMessage, Long uploadedFileId) {
-        List<BulkUserRecords> usersRecords = userRecordsRepository.findAllByUploadedFileId(uploadedFileId);
-        for (BulkUserRecords userFromFile : usersRecords) {
-            UserVO newUser = new UserVO();
-
-            newUser.setName(userFromFile.getName());
-            newUser.setEmail(userFromFile.getEmail());
-            newUser.setUsername(userFromFile.getUserName());
-            newUser.setMobileNo(userFromFile.getMobileNumber());
-            newUser.setDesignation(userFromFile.getDesignation());
-            newUser.setEmployeeCode(userFromFile.getEmployeeCode());
-            newUser.setPassword("admin");
-            newUser.setRole(userFromFile.getRole());
-            validateMessage.addAll(validator.validateNewUser(newUser));
-        }
-
-        return validateMessage;
-    }
-
-    private List<String> validateLocationRecordOfFile(List<String> validateMessage, Long uploadedFileId) {
-        List<BulkLocationRecords> locationRecords = bulkLocationRecordsRepository.findAllByUploadedFileId(uploadedFileId);
-        for (BulkLocationRecords locationFromFile : locationRecords) {
-            Location newLocation = new Location();
-            newLocation.setName(locationFromFile.getLocationName());
-            newLocation.setLocationAddress(locationFromFile.getAddress());
-            newLocation.setLocationContactNo(locationFromFile.getContactNumber());
-            newLocation.setCountry(locationFromFile.getCountry());
-            validateMessage.addAll(validator.createLocation(newLocation));
-        }
-        return validateMessage;
-    }
 
     public List<String> rejectNewFileData(BulkRejectVO rejectVO, Long loggedInUserId) {
         List<String> validateMessage = new ArrayList<>();
@@ -222,7 +171,10 @@ public class BulkValidator extends ValidatorHelper {
             validateMessage.add(messageSource.getMessage("bulk.validate.error.na.records"));
             return validateMessage;
         }
-
+        if (fileRecord.isValidationIssueFound()) {
+            validateMessage.add(messageSource.getMessage("bulk.validate.error.found.issues"));
+            return validateMessage;
+        }
         String oldStatus = VMSEnum.BULK_UPLOAD_STATUS.VALIDATE.name();
         if (!StringUtils.equalsIgnoreCase(fileRecord.getStatus(), oldStatus)) {
             validateMessage.add(messageSource.getMessage("bulk.validate.error.status.mismatch", new Object[]{oldStatus}));
@@ -230,12 +182,6 @@ public class BulkValidator extends ValidatorHelper {
         String status = VMSEnum.BULK_UPLOAD_STATUS.SUBMITTED.name();
         if (StringUtils.equalsIgnoreCase(fileRecord.getStatus(), status)) {
             validateMessage.add(messageSource.getMessage("bulk.validate.error.status.already", new Object[]{status}));
-        }
-        String moduleName = fileRecord.getModule();
-        if (StringUtils.equalsIgnoreCase(moduleName, VMSEnum.MODULE_NAME.LOCATION.name())) {
-            validateMessage.addAll(validateLocationRecordOfFile(validateMessage, uploadedFileId));
-        } else {
-            validateMessage.addAll(validateUserRecordOfFile(validateMessage, uploadedFileId));
         }
         return validateMessage;
     }

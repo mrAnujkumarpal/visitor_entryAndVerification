@@ -3,7 +3,7 @@ package vms.vevs.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vms.vevs.common.notification.EmailService;
-import vms.vevs.common.util.VmsUtils;
+import vms.vevs.common.util.VMSUtils;
 import vms.vevs.entity.common.AppOTP;
 import vms.vevs.repo.AppOTPRepository;
 import vms.vevs.service.AppOTPService;
@@ -24,14 +24,14 @@ public class AppOTPServiceImpl implements AppOTPService {
 
 
     public String createAndSendOTP(AppOTP otpRequest) {
-        String randomOTP = Integer.toString(VmsUtils.createOTP());
+        String randomOTP = Integer.toString(VMSUtils.createOTP());
 
         AppOTP appOTP = new AppOTP();
         appOTP.setOtp(randomOTP);
         appOTP.setEmail(otpRequest.getEmail());
         appOTP.setMobileNumber(otpRequest.getMobileNumber());
-        appOTP.setCreatedOn(VmsUtils.currentTime());
-        appOTP.setOptValidTill(VmsUtils.addMinutesInCurrentTime(5));
+        appOTP.setCreatedOn(VMSUtils.currentTime());
+        appOTP.setOptValidTill(VMSUtils.addMinutesInCurrentTime(5));
 
         try {
             otpRepository.save(appOTP);
@@ -56,7 +56,7 @@ public class AppOTPServiceImpl implements AppOTPService {
             }
         }
         Timestamp otpValidTill = otpFromDB.getOptValidTill();
-        Timestamp currentTimestamp = VmsUtils.currentTime();
+        Timestamp currentTimestamp = VMSUtils.currentTime();
 
         if ((otpFromDB.getOtp()).equals(otp) && otpValidTill.after(currentTimestamp)) {
 

@@ -54,7 +54,7 @@ public class BulkUploadController {
         return response;
     }
 
-    @GetMapping("/rejectFileRecord")
+    @PostMapping("/rejectFileRecord")
     public HttpResponse rejectFileRecord(@RequestBody BulkRejectVO rejectVO,
                                          @RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<BulkUploadRecordsFile> response = new HttpResponse<>();

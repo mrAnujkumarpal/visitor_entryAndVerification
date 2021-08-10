@@ -2,14 +2,13 @@ package vms.vevs.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vms.vevs.common.util.VmsUtils;
+import vms.vevs.common.util.VMSUtils;
 import vms.vevs.entity.common.Location;
 import vms.vevs.repo.LocationRepository;
 import vms.vevs.service.LocationService;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -27,8 +26,8 @@ public class LocationServiceImpl implements LocationService {
 
         location.setEnable(true);
         location.setCreatedBy(loggedInUserId);
-        location.setCreatedOn(VmsUtils.currentTime());
-        location.setModifiedOn(VmsUtils.currentTime());
+        location.setCreatedOn(VMSUtils.currentTime());
+        location.setModifiedOn(VMSUtils.currentTime());
         return locationRepository.save(location);
     }
 
@@ -41,7 +40,7 @@ public class LocationServiceImpl implements LocationService {
     public Location updateLocation(Location location, Long loggedInUserId) {
         Location locFromDb=locationRepository.getById(location.getId());
         locFromDb.setModifiedBy(loggedInUserId);
-        locFromDb.setModifiedOn(VmsUtils.currentTime());
+        locFromDb.setModifiedOn(VMSUtils.currentTime());
         locFromDb.setName(location.getName());
         locFromDb.setEnable(location.isEnable());
         locFromDb.setLocationContactNo(location.getLocationContactNo());

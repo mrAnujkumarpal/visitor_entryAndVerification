@@ -5,15 +5,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import vms.vevs.common.util.VmsConstants;
-import vms.vevs.common.util.VmsUtils;
+import vms.vevs.common.util.VMSUtils;
 import vms.vevs.entity.common.Location;
 import vms.vevs.entity.common.RoleName;
 import vms.vevs.entity.common.VMSEnum;
 import vms.vevs.entity.employee.ResetPassword;
 import vms.vevs.entity.employee.Users;
-import vms.vevs.entity.virtualObject.HttpResponse;
 import vms.vevs.entity.virtualObject.ReportRequestVO;
 import vms.vevs.entity.virtualObject.UserVO;
 import vms.vevs.entity.virtualObject.VisitorVO;
@@ -47,7 +45,6 @@ public class Validator extends ValidatorHelper {
 
     @Autowired
     UserRepository userRepository;
-
 
     @Autowired
     ResetPasswordRepository passwordRepository;
@@ -136,16 +133,16 @@ public class Validator extends ValidatorHelper {
                     + "Password must contain a length of at least 6 characters and a maximum of 10 characters.";
             validateMessage.add(pass);
         }*/
+
         if (!EnumUtils.isValidEnum(RoleName.class,user.getRole())) {
             validateMessage.add(messageSource.getMessage("error.user.invalid.role"));
         }
-        Optional<Users> isUserAvail= userRepository.findByUsernameOrEmail(username,email);
-        if(isUserAvail.isPresent() ){
-            validateMessage.add(messageSource.getMessage("error.user.already.exist"));
+         if(userRepository.existsByEmail(email)){
+            validateMessage.add(messageSource.getMessage("error.user.already.exist",new Object[] {email}));
         }
-        //isEmployeeCode Exist
-       /* Employee emp=employeeRepository.findByEmployeeCodeAndEnable(employeeCode,true);
-        if(emp!=null){
+        /*isEmployeeCode Exist
+        Users hostEmployee=userRepository.findByEmailAndEnable(email,true);
+        if(hostEmployee==null){
             validateMessage.add(messageSource.getMessage("error.employee.exist.employeeCode"));
         }
 */
@@ -332,8 +329,8 @@ public class Validator extends ValidatorHelper {
 
 
     private boolean isTokenExpired(final Timestamp tokenCreationTime) {
-        Timestamp currentTime= VmsUtils.currentTime();
-        Long differenceInMin=VmsUtils.timeDifferenceIn(VmsConstants.MM,tokenCreationTime,currentTime);
+        Timestamp currentTime= VMSUtils.currentTime();
+        Long differenceInMin= VMSUtils.timeDifferenceIn(VmsConstants.MM,tokenCreationTime,currentTime);
         return differenceInMin >= VmsConstants.UPDATE_PASSWORD_TOKEN_EXPIRE_IN_MINUTES;
     }
 
@@ -342,10 +339,10 @@ public class Validator extends ValidatorHelper {
 
 
         if(null==request.getFromDate()){
-            request.setFromDate(VmsUtils.defaultTime());
+            request.setFromDate(VMSUtils.defaultTime());
         }
         if(null==request.getToDate()){
-            request.setToDate(VmsUtils.currentTime());
+            request.setToDate(VMSUtils.currentTime());
         }
         if(request.getFromDate().compareTo(request.getToDate())>0) {
             validateMessage.add(messageSource.getMessage("report.error.fromTime.beforeTo.toTime", new Object[] {"From Time","To Time"}));

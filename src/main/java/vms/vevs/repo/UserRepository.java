@@ -23,6 +23,6 @@ public interface UserRepository extends JpaRepository<Users,Long> {
 
     Boolean existsByEmail(String email);
 
-
+    Users  findByEmailAndEnable(String employeeCode, boolean enable);
 
 }
