@@ -15,7 +15,7 @@ public interface VisitorService {
 
     List<Visitor> allVisitors();
 
-    Visitor getVisitorById(long id);
+    Visitor getVisitorById(Long id);
 
     Visitor updateVisitor(Visitor visitor,Long userId);
 

@@ -1,5 +1,6 @@
 package com.vevs.controller;
 
+import com.vevs.entity.vo.OtpVO;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import org.slf4j.Logger;
@@ -73,7 +74,7 @@ public class VisitorController {
     }
 
     @GetMapping(value = "view/{visitorId}")
-    public HttpResponse<?> visitorById(@PathVariable("visitorId") long id,
+    public HttpResponse<?> visitorById(@PathVariable("visitorId") Long id,
                                        UriComponentsBuilder ucBuilder, @RequestHeader("loggedInUserId") Long loggedInUserId) {
         HttpResponse<Visitor> response = new HttpResponse<>();
         response.setResponseObject(visitorService.getVisitorById(id));
@@ -95,7 +96,7 @@ public class VisitorController {
 
     @RequestMapping(value = "public/sendOTP", method = RequestMethod.POST)
     @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
-    public String createAndSendOTP(@RequestBody AppOTP otpRequest) {
+    public String createAndSendOTP(@RequestBody OtpVO otpRequest) {
         return otpService.createAndSendOTP(otpRequest);
     }
 

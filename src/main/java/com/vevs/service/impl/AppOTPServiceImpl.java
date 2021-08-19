@@ -1,5 +1,6 @@
 package com.vevs.service.impl;
 
+import com.vevs.entity.vo.OtpVO;
 import com.vevs.service.AppOTPService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,13 +24,13 @@ public class AppOTPServiceImpl implements AppOTPService {
     EmailService emailService;
 
 
-    public String createAndSendOTP(AppOTP otpRequest) {
-        String randomOTP = Integer.toString(VMSUtils.createOTP());
+    public String createAndSendOTP(OtpVO otpRequest) {
+        otpRepository.deleteByEmail(otpRequest.getEmail());
 
+        String randomOTP = Integer.toString(VMSUtils.createOTP());
         AppOTP appOTP = new AppOTP();
         appOTP.setOtp(randomOTP);
         appOTP.setEmail(otpRequest.getEmail());
-        appOTP.setMobileNumber(otpRequest.getMobileNumber());
         appOTP.setCreatedOn(VMSUtils.currentTime());
         appOTP.setOptValidTill(VMSUtils.addMinutesInCurrentTime(5));
 

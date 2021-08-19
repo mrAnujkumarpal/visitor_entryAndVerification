@@ -1,22 +1,27 @@
 package com.vevs.service.impl;
 
+import com.vevs.common.notification.EmailService;
+import com.vevs.common.util.VMSUtils;
+import com.vevs.entity.common.VMSEnum;
+import com.vevs.entity.employee.Users;
+import com.vevs.entity.visitor.Visitor;
+import com.vevs.entity.visitor.VisitorImage;
+import com.vevs.entity.vo.VisitorVO;
+import com.vevs.repo.LocationRepository;
+import com.vevs.repo.UserRepository;
+import com.vevs.repo.VisitorImageRepository;
+import com.vevs.repo.VisitorRepository;
+import com.vevs.service.VisitorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import com.vevs.common.notification.EmailService;
-import com.vevs.common.util.VMSUtils;
-import com.vevs.entity.common.VMSEnum;
-import com.vevs.entity.vo.VisitorVO;
-import com.vevs.entity.visitor.Visitor;
-import com.vevs.entity.visitor.VisitorImage;
-import com.vevs.repo.*;
-import com.vevs.service.VisitorService;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,9 +45,6 @@ public class VisitorServiceImpl implements VisitorService {
 
     @Autowired
     EmailService emailService;
-
-    @Autowired
-    VisitorFeedbackRepository feedbackRepository;
 
 
     @Override
@@ -80,16 +82,24 @@ public class VisitorServiceImpl implements VisitorService {
         List<Visitor> visitors = visitorRepository.findAllByOrderByIdDesc();
         for (Visitor visitor : visitors) {
             VisitorImage image = imageRepository.findByVisitorCode(visitor.getVisitorCode());
-            visitor.setVisitorImage(image.getPhoto());
+            if (image != null) {
+                visitor.setVisitorImage(image.getPhoto());
+            }
         }
         return visitors;
     }
 
     @Override
-    public Visitor getVisitorById(long id) {
-        Visitor visitor = visitorRepository.getById(id);
-        VisitorImage image = imageRepository.findByVisitorCode(visitor.getVisitorCode());
-        visitor.setVisitorImage(image.getPhoto());
+    public Visitor getVisitorById(Long id) {
+        Optional<Visitor> optionalVisitor = visitorRepository.findById(id);
+        Visitor visitor =null;
+        if (optionalVisitor.isPresent()) {
+            visitor = optionalVisitor.get();
+            VisitorImage image = imageRepository.findByVisitorCode(visitor.getVisitorCode());
+            if (image != null) {
+                visitor.setVisitorImage(image.getPhoto());
+            }
+        }
         return visitor;
     }
 

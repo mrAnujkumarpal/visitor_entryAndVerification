@@ -8,4 +8,6 @@ import com.vevs.entity.common.AppOTP;
 public interface AppOTPRepository extends JpaRepository<AppOTP,Long> {
     AppOTP findByMobileNumber(String mobileNumber);
     AppOTP findByEmail(String email);
+
+    void deleteByEmail(String email);
 }

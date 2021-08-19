@@ -58,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 }else{
-                    logger.info("inside else 62");
+                    logger.info("inside else line no. 62");
                 }
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
