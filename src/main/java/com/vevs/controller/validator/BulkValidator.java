@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import com.vevs.entity.bulk.BulkUploadRecordsFile;
 import com.vevs.entity.common.VMSEnum;
-import com.vevs.entity.vo.BulkRejectVO;
+import com.vevs.entity.virtualObject.BulkRejectVO;
 import com.vevs.i18N.MessageByLocaleService;
 import com.vevs.repo.bulk.BulkUploadRecordsFileRepository;
 

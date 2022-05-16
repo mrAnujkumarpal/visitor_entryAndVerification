@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import com.vevs.entity.vo.ExceptionResponse;
-import com.vevs.entity.vo.HttpResponse;
+import com.vevs.entity.virtualObject.ExceptionResponse;
+import com.vevs.entity.virtualObject.HttpResponse;
 
 import java.util.ArrayList;
 import java.util.List;

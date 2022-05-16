@@ -1,14 +1,16 @@
 package com.vevs.controller.bulk;
 
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.vevs.controller.validator.BulkValidator;
 import com.vevs.entity.bulk.BulkUploadRecordsFile;
-import com.vevs.entity.vo.BulkRejectVO;
-import com.vevs.entity.vo.HttpResponse;
+import com.vevs.entity.virtualObject.BulkRejectVO;
+import com.vevs.entity.virtualObject.HttpResponse;
 import com.vevs.service.BulkUploadService;
 
 import java.util.List;
@@ -40,7 +42,20 @@ public class BulkUploadController {
         response.setResponseObject(uploadedData);
         return response;
     }
-
+    @GetMapping("public/moduleNames")
+    @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
+    public HttpResponse<?> modules() {
+        HttpResponse<List<String>> response = new HttpResponse<>();
+        response.setResponseObject(bulkUploadService.bulkUploadModuleNames());
+        return response;
+    }
+    @GetMapping("public/bulkUploadStatus")
+    @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
+    public HttpResponse<?> bulkUploadStatus() {
+        HttpResponse<List<String>> response = new HttpResponse<>();
+        response.setResponseObject(bulkUploadService.bulkUploadStatus());
+        return response;
+    }
     @GetMapping("/validate/{uploadedFileId}")
     public HttpResponse validateFileRecord(@PathVariable("uploadedFileId") Long uploadedFileId,
                                            @RequestHeader("loggedInUserId") Long loggedInUserId) {

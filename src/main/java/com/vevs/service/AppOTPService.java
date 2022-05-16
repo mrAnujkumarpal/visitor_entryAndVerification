@@ -1,7 +1,7 @@
 package com.vevs.service;
 
 import com.vevs.entity.common.AppOTP;
-import com.vevs.entity.vo.OtpVO;
+import com.vevs.entity.virtualObject.OtpVO;
 
 import java.util.List;
 

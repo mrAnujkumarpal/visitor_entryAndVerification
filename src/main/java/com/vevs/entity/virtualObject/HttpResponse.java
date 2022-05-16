@@ -1,4 +1,4 @@
-package com.vevs.entity.vo;
+package com.vevs.entity.virtualObject;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vevs.entity.common.VMSEnum;

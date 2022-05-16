@@ -18,8 +18,8 @@ import com.vevs.entity.common.Role;
 import com.vevs.entity.common.RoleName;
 import com.vevs.entity.common.VMSEnum;
 import com.vevs.entity.employee.Users;
-import com.vevs.entity.vo.BulkRejectVO;
-import com.vevs.entity.vo.UserVO;
+import com.vevs.entity.virtualObject.BulkRejectVO;
+import com.vevs.entity.virtualObject.UserVO;
 import com.vevs.i18N.MessageByLocaleService;
 import com.vevs.repo.LocationRepository;
 import com.vevs.repo.RoleRepository;
@@ -33,6 +33,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -140,6 +142,20 @@ public class BulkUploadServiceImpl extends BulkHelper implements BulkUploadServi
             addNewUsers(uploadedFileId, loggedInUserId, currentTime);
         }
         return updateBulkRecordsAsSubmitted(record, loggedInUserId, currentTime);
+    }
+
+    @Override
+    public List<String> bulkUploadModuleNames() {
+        return Stream.of(VMSEnum.MODULE_NAME.values())
+                .map(Enum::name)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> bulkUploadStatus() {
+        return Stream.of(VMSEnum.BULK_UPLOAD_STATUS.values())
+                .map(Enum::name)
+                .collect(Collectors.toList());
     }
 
 

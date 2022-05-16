@@ -1,7 +1,7 @@
 package com.vevs.service;
 
 import org.springframework.stereotype.Service;
-import com.vevs.entity.vo.ReportRequestVO;
+import com.vevs.entity.virtualObject.ReportRequestVO;
 import com.vevs.entity.visitor.Visitor;
 
 import java.util.List;

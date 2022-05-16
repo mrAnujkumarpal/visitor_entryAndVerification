@@ -1,7 +1,8 @@
 package com.vevs.service;
 
+import com.vevs.entity.virtualObject.UpdateVisitorVO;
 import org.springframework.web.multipart.MultipartFile;
-import com.vevs.entity.vo.VisitorVO;
+import com.vevs.entity.virtualObject.VisitorVO;
 import com.vevs.entity.visitor.Visitor;
 import com.vevs.entity.visitor.VisitorImage;
 
@@ -17,7 +18,7 @@ public interface VisitorService {
 
     Visitor getVisitorById(Long id);
 
-    Visitor updateVisitor(Visitor visitor,Long userId);
+    Visitor updateVisitor(UpdateVisitorVO visitor, Long userId);
 
     List<String> purposeOfVisit();
 

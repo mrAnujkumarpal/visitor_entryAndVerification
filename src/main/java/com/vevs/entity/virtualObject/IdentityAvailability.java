@@ -1,4 +1,4 @@
-package com.vevs.entity.vo;
+package com.vevs.entity.virtualObject;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

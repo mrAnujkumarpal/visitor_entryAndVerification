@@ -3,8 +3,8 @@ package com.vevs.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.vevs.controller.validator.Validator;
-import com.vevs.entity.vo.HttpResponse;
-import com.vevs.entity.vo.ReportRequestVO;
+import com.vevs.entity.virtualObject.HttpResponse;
+import com.vevs.entity.virtualObject.ReportRequestVO;
 import com.vevs.entity.visitor.Visitor;
 import com.vevs.service.ReportService;
 

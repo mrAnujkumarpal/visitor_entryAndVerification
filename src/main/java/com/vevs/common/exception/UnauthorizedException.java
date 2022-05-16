@@ -2,7 +2,7 @@ package com.vevs.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import com.vevs.entity.vo.HttpResponse;
+import com.vevs.entity.virtualObject.HttpResponse;
 
 @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
 public class UnauthorizedException extends RuntimeException {

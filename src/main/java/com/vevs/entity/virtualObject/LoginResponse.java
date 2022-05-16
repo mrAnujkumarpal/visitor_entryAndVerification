@@ -1,5 +1,6 @@
-package com.vevs.entity.vo;
+package com.vevs.entity.virtualObject;
 
+import com.vevs.common.util.VmsConstants;
 import lombok.Data;
 
 /**
@@ -10,7 +11,7 @@ public class LoginResponse {
 
     private String accessToken;
     private String tokenType = "Bearer";
-    private String developer = "Anuj kumar pal";
+    private String developer = VmsConstants.DEVELOPERS;
     private Long loggedInUserId;
     private String role;
 

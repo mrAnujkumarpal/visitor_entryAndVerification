@@ -1,17 +1,13 @@
-package com.vevs.entity.vo;
+package com.vevs.entity.virtualObject;
 
 import lombok.Data;
 
 @Data
-public class UserVO {
-
+public class UpdateUserVO {
+    private Long id ;
     private String name;
-    private String username;
     private String mobileNo;
-
-    private String role;
-    private String email;
-    private String password;
+    private boolean enable;
 
     private String employeeCode;
 
@@ -20,4 +16,7 @@ public class UserVO {
     private Long baseLocationId;
 
     private Long currentLocationId;
+
+
 }
+

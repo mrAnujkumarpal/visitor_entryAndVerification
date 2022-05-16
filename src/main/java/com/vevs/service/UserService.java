@@ -1,11 +1,12 @@
 package com.vevs.service;
 
+import com.vevs.entity.virtualObject.UpdateUserVO;
 import org.springframework.web.multipart.MultipartFile;
 import com.vevs.entity.common.Role;
 import com.vevs.entity.employee.ResetPassword;
 import com.vevs.entity.employee.Users;
-import com.vevs.entity.vo.IdentityAvailability;
-import com.vevs.entity.vo.UserVO;
+import com.vevs.entity.virtualObject.IdentityAvailability;
+import com.vevs.entity.virtualObject.UserVO;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,7 +20,7 @@ public interface UserService {
 
     Users saveUser(UserVO user, Long userId, Role userRole);
 
-    Users updateUser(Users user,Long userId);
+    Users updateUser(UpdateUserVO user, Long userId);
 
     IdentityAvailability checkUsernameAvailability(String username);
 

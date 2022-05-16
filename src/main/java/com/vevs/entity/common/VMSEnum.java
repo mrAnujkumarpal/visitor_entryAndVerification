@@ -20,7 +20,7 @@ public class VMSEnum {
     }
 
     public  enum MODULE_NAME{
-        LOCATION,USER,VISITOR
+        LOCATION,USER
     }
     public  enum BULK_UPLOAD_STATUS{
         PENDING,VALIDATE,REJECT,SUBMITTED

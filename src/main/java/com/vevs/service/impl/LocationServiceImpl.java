@@ -39,10 +39,13 @@ public class LocationServiceImpl implements LocationService {
     @Override
     public Location updateLocation(Location location, Long loggedInUserId) {
         Location locFromDb=locationRepository.getById(location.getId());
-        locFromDb.setModifiedBy(loggedInUserId);
-        locFromDb.setModifiedOn(VMSUtils.currentTime());
+
         locFromDb.setName(location.getName());
+        locFromDb.setModifiedBy(loggedInUserId);
         locFromDb.setEnable(location.isEnable());
+        locFromDb.setCountry(location.getCountry());
+        locFromDb.setModifiedOn(VMSUtils.currentTime());
+        locFromDb.setLocationAddress(location.getLocationAddress());
         locFromDb.setLocationContactNo(location.getLocationContactNo());
         return locationRepository.save(locFromDb);
     }

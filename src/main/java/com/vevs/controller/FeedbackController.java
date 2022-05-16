@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import com.vevs.controller.validator.Validator;
-import com.vevs.entity.vo.HttpResponse;
+import com.vevs.entity.virtualObject.HttpResponse;
 import com.vevs.entity.visitor.VisitorFeedback;
 import com.vevs.service.FeedbackService;
 

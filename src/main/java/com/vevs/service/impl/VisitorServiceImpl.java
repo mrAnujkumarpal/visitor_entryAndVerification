@@ -3,10 +3,10 @@ package com.vevs.service.impl;
 import com.vevs.common.notification.EmailService;
 import com.vevs.common.util.VMSUtils;
 import com.vevs.entity.common.VMSEnum;
-import com.vevs.entity.employee.Users;
+import com.vevs.entity.virtualObject.UpdateVisitorVO;
 import com.vevs.entity.visitor.Visitor;
 import com.vevs.entity.visitor.VisitorImage;
-import com.vevs.entity.vo.VisitorVO;
+import com.vevs.entity.virtualObject.VisitorVO;
 import com.vevs.repo.LocationRepository;
 import com.vevs.repo.UserRepository;
 import com.vevs.repo.VisitorImageRepository;
@@ -104,16 +104,18 @@ public class VisitorServiceImpl implements VisitorService {
     }
 
     @Override
-    public Visitor updateVisitor(Visitor visitor, Long loggedInUserId) {
+    public Visitor updateVisitor(UpdateVisitorVO visitor, Long loggedInUserId) {
+        Visitor visitorFromDB = visitorRepository.getById(visitor.getId());
 
-        visitor.setVisitorStatus(VMSEnum.VISITOR_STATUS.CHECK_OUT.name());
-        visitor.setCardNoGivenToVisitor("Token-001");
-        visitor.setModifiedOn(VMSUtils.currentTime());
-        visitor.setModifiedBy(loggedInUserId);
-        Visitor updateVisitor = visitorRepository.save(visitor);
+        visitorFromDB.setVisitorCode(visitor.getVisitorCode());
+        visitorFromDB.setVisitorStatus(VMSEnum.VISITOR_STATUS.CHECK_OUT.name());
+        visitorFromDB.setCardNoGivenToVisitor("Token-001");
+        visitorFromDB.setModifiedOn(VMSUtils.currentTime());
+        visitorFromDB.setModifiedBy(loggedInUserId);
+        Visitor updateVisitor = visitorRepository.save(visitorFromDB);
         VisitorImage image = imageRepository.findByVisitorCode(updateVisitor.getVisitorCode());
-        visitor.setVisitorImage(image.getPhoto());
-        return visitor;
+        if(image!=null){updateVisitor.setVisitorImage(image.getPhoto());}
+        return updateVisitor;
     }
 
     @Override

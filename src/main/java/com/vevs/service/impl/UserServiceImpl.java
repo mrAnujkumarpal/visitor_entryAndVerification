@@ -1,22 +1,25 @@
 package com.vevs.service.impl;
 
+import com.vevs.common.notification.EmailService;
+import com.vevs.common.util.VMSUtils;
+import com.vevs.common.util.VmsConstants;
+import com.vevs.entity.common.Location;
+import com.vevs.entity.common.Role;
+import com.vevs.entity.employee.ResetPassword;
+import com.vevs.entity.employee.Users;
+import com.vevs.entity.virtualObject.IdentityAvailability;
+import com.vevs.entity.virtualObject.UpdateUserVO;
+import com.vevs.entity.virtualObject.UserVO;
 import com.vevs.i18N.MessageByLocaleService;
+import com.vevs.repo.LocationRepository;
+import com.vevs.repo.ResetPasswordRepository;
+import com.vevs.repo.UserRepository;
+import com.vevs.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import com.vevs.common.util.VMSUtils;
-import com.vevs.common.util.VmsConstants;
-import com.vevs.entity.common.Role;
-import com.vevs.entity.employee.ResetPassword;
-import com.vevs.entity.employee.Users;
-import com.vevs.entity.vo.IdentityAvailability;
-import com.vevs.entity.vo.UserVO;
-import com.vevs.repo.LocationRepository;
-import com.vevs.repo.ResetPasswordRepository;
-import com.vevs.repo.UserRepository;
-import com.vevs.service.UserService;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -44,6 +47,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     LocationRepository locRepository;
+
+    @Autowired
+    EmailService emailService;
 
     @Override
     public Users findById(long id) {
@@ -78,17 +84,40 @@ public class UserServiceImpl implements UserService {
         if (null != userVO.getCurrentLocationId()) {
             user.setCurrentLocation(locRepository.getById(userVO.getCurrentLocationId()));
         }
-        return userRepository.save(user);
+        Users newlyAddedUser = userRepository.save(user);
+        notifyHimAboutVEVS(newlyAddedUser,userVO.getPassword());
+        return newlyAddedUser;
+    }
+
+    private void notifyHimAboutVEVS(Users newlyAddedUser,String password) {
+        emailService.sendEmailAboutVEVSOpenAccount(newlyAddedUser,password);
     }
 
     @Override
-    public Users updateUser(Users userTobeUpdate, Long loggedInUserId) {
+    public Users updateUser(UpdateUserVO userTobeUpdate, Long loggedInUserId) {
 
         Users dbUser = userRepository.getById(userTobeUpdate.getId());
+
+
+        dbUser.setName(skipBlankVal(dbUser.getName(),userTobeUpdate.getName()));
+        dbUser.setMobileNo(skipBlankVal(dbUser.getMobileNo(),userTobeUpdate.getMobileNo()));
+        dbUser.setDesignation(skipBlankVal(dbUser.getDesignation(),userTobeUpdate.getDesignation()));
+        dbUser.setEmployeeCode(skipBlankVal(dbUser.getEmployeeCode(),userTobeUpdate.getEmployeeCode()));
+        Location baseLoc=locRepository.getById(Long.parseLong(skipBlankVal(Long.toString(dbUser.getBaseLocation().getId()),Long.toString(userTobeUpdate.getBaseLocationId()))));
+        dbUser.setBaseLocation(baseLoc);
+        Location currLoc=locRepository.getById(Long.parseLong(skipBlankVal(Long.toString(dbUser.getBaseLocation().getId()),Long.toString(userTobeUpdate.getBaseLocationId()))));
+        dbUser.setCurrentLocation(currLoc);
+        dbUser.setEnable(Boolean.parseBoolean(skipBlankVal(String.valueOf(dbUser.isEnable()),String.valueOf(userTobeUpdate.isEnable()))));
+
+
 
         dbUser.setModifiedOn(VMSUtils.currentTime());
         dbUser.setModifiedBy(loggedInUserId);
         return userRepository.save(dbUser);
+    }
+
+    private String skipBlankVal(String dbVal, String updateVal) {
+        return StringUtils.isEmpty(updateVal)?dbVal:updateVal;
     }
 
     @Override
@@ -185,9 +214,9 @@ public class UserServiceImpl implements UserService {
     private String generateToken() {
         StringBuilder token = new StringBuilder();
 
-        return token.append(VmsConstants.ORG_CODE.toString())
-                .append(UUID.randomUUID().toString())
-                .append(UUID.randomUUID().toString())
+        return token.append(VmsConstants.ORG_CODE)
+                .append(UUID.randomUUID())
+                .append(UUID.randomUUID())
                 .append(VMSUtils.createOTP()).toString();
     }
 

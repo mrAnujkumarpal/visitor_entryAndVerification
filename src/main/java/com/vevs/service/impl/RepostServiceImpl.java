@@ -7,7 +7,7 @@ import com.vevs.common.util.VMSUtils;
 import com.vevs.controller.VMSHelper;
 import com.vevs.entity.common.RoleName;
 import com.vevs.entity.employee.Users;
-import com.vevs.entity.vo.ReportRequestVO;
+import com.vevs.entity.virtualObject.ReportRequestVO;
 import com.vevs.entity.visitor.Visitor;
 import com.vevs.repo.UserRepository;
 import com.vevs.repo.VisitorRepository;

@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import com.vevs.controller.validator.Validator;
 import com.vevs.entity.common.Location;
-import com.vevs.entity.vo.HttpResponse;
+import com.vevs.entity.virtualObject.HttpResponse;
 import com.vevs.i18N.MessageByLocaleService;
 import com.vevs.service.LocationService;
 

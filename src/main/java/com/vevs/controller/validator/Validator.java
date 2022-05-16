@@ -1,5 +1,6 @@
 package com.vevs.controller.validator;
 
+import com.vevs.entity.virtualObject.UpdateVisitorVO;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,9 @@ import com.vevs.entity.common.RoleName;
 import com.vevs.entity.common.VMSEnum;
 import com.vevs.entity.employee.ResetPassword;
 import com.vevs.entity.employee.Users;
-import com.vevs.entity.vo.ReportRequestVO;
-import com.vevs.entity.vo.UserVO;
-import com.vevs.entity.vo.VisitorVO;
+import com.vevs.entity.virtualObject.ReportRequestVO;
+import com.vevs.entity.virtualObject.UserVO;
+import com.vevs.entity.virtualObject.VisitorVO;
 import com.vevs.entity.visitor.Visitor;
 import com.vevs.entity.visitor.VisitorFeedback;
 import com.vevs.i18N.MessageByLocaleService;
@@ -211,10 +212,10 @@ public class Validator extends ValidatorHelper {
             validateMessage.add(messageSource.getMessage("error.visitor.na.hostEmployee"));
         }
 
-        if (!(hostEmployee.getCurrentLocation().getId() == locationId) || !hostEmployee.isEnable()) {
+       /* if (!(hostEmployee.getCurrentLocation().getId() == locationId) || !hostEmployee.isEnable()) {
             validateMessage.add(messageSource.getMessage("error.visitor.na.hostEmployee"));
         }
-
+*/
 
          if (!otpService.isValidOTP(visitorOTP, visitorEmail, mobileNumber)) {
             validateMessage.add(messageSource.getMessage("error.visitor.otp.invalid"));
@@ -223,7 +224,7 @@ public class Validator extends ValidatorHelper {
         return validateMessage;
     }
 
-    public List<String> updateVisitor(Visitor visitor) {
+    public List<String> updateVisitor(UpdateVisitorVO visitor) {
         List<String> validateMessage = new ArrayList<>();
         Long visitorId = visitor.getId();
         if (null == visitorId) {

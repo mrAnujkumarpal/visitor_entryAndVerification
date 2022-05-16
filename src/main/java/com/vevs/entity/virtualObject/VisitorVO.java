@@ -1,4 +1,4 @@
-package com.vevs.entity.vo;
+package com.vevs.entity.virtualObject;
 
 import lombok.Getter;
 import lombok.Setter;
