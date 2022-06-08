@@ -149,7 +149,7 @@ public class BulkHelper {
     }
     protected BulkUploadRecordsFile markAsValidateFileRecordFailed( List<String> issuesList,BulkUploadRecordsFile record, Long userId, Timestamp now) {
 
-        String issues = issuesList.stream().map(e -> e.toString()).reduce(" ", String::concat);
+        String issues = issuesList.stream().map(e -> e).reduce(" ", String::concat);
 
         record.setValidate(false);
         record.setValidationIssues(issues);

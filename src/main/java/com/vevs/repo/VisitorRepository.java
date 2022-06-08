@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface VisitorRepository extends JpaRepository<Visitor,Long> {
 
-    public List<Visitor> findAllByOrderByIdDesc();
+    List<Visitor> findAllByOrderByIdDesc();
 
 
     List<Visitor> findAllByCreatedOn(Timestamp createdOn);

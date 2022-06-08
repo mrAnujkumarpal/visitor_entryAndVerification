@@ -10,5 +10,5 @@ public interface ResetPasswordRepository extends JpaRepository<ResetPassword, Lo
 
     ResetPassword findByToken(String token);
 
-    public void deleteByUserEmail(String email);
+    void deleteByUserEmail(String email);
 }

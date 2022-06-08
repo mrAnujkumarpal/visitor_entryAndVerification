@@ -90,7 +90,7 @@ public class BulkValidator extends ValidatorHelper {
             }
             if (StringUtils.isNotBlank(emptyColumn)) {
                 emptyColumn = emptyColumn.substring(0, emptyColumn.length() - 1);
-                String msg = "In row " + String.valueOf(col + 1) + " empty column are : " + emptyColumn;
+                String msg = "In row " + (col + 1) + " empty column are : " + emptyColumn;
                 emptyFieldName.add(msg);
                 emptyColumn = StringUtils.EMPTY;
             }

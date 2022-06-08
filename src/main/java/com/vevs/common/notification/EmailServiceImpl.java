@@ -15,7 +15,7 @@ import com.vevs.entity.visitor.Visitor;
 public class EmailServiceImpl implements EmailService {
 
     @Autowired
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender javaMailSender;
 
     @Autowired
     public EmailServiceImpl(JavaMailSender mailSender) {

@@ -16,8 +16,8 @@ import net.jodah.expiringmap.ExpiringMap;
 public class LoggedOutJwtTokenCache {
     private static final Logger logger = LoggerFactory.getLogger(LoggedOutJwtTokenCache.class);
 
-    private ExpiringMap<String, OnUserLogoutSuccessEvent> tokenEventMap;
-    private JwtTokenProvider tokenProvider;
+    private final ExpiringMap<String, OnUserLogoutSuccessEvent> tokenEventMap;
+    private final JwtTokenProvider tokenProvider;
 
     @Autowired
     public LoggedOutJwtTokenCache(JwtTokenProvider tokenProvider) {
