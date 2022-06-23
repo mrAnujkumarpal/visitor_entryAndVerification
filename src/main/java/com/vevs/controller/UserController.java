@@ -121,7 +121,7 @@ public class UserController {
     response.setResponseObject(userService.findById(id));
     return response;
   }
-
+///this method public to only create once project set-p make it change from public
   @PostMapping(value = "public/newUser")
   public HttpResponse<?> newUser(
       @RequestBody UserVO user,

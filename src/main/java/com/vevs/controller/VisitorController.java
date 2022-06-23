@@ -45,32 +45,6 @@ public class VisitorController {
     return response;
   }
 
-  @PostMapping(value = "public/newVisitor")
-  @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
-  public HttpResponse<?> newVisitor(
-      @RequestBody VisitorVO request, UriComponentsBuilder ucBuilder) {
-    HttpResponse<Visitor> response = new HttpResponse<>();
-    logger.info("Creating visitor : {}", request);
-
-    List<String> validateMsgList = validator.validateVisitor(request);
-    if (!validateMsgList.isEmpty()) {
-      return new HttpResponse().errorResponse(validateMsgList);
-    }
-
-    response.setResponseObject(visitorService.newVisitor(request));
-    return response;
-  }
-
-  @PostMapping(value = "public/newVisitorImage")
-  @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
-  public HttpResponse<?> newVisitorImage(
-      @RequestParam String visitorCode, @RequestParam MultipartFile visitorImage)
-      throws IOException {
-    HttpResponse<VisitorImage> response = new HttpResponse<>();
-    response.setResponseObject(visitorService.saveVisitorImage(visitorCode, visitorImage));
-    return response;
-  }
-
   @GetMapping(value = "view/{visitorId}")
   public HttpResponse<?> visitorById(
       @PathVariable("visitorId") Long id,
@@ -96,23 +70,9 @@ public class VisitorController {
     return response;
   }
 
-  @RequestMapping(value = "public/sendOTP", method = RequestMethod.POST)
-  @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
-  public String createAndSendOTP(@RequestBody OtpVO otpRequest) {
-    return otpService.createAndSendOTP(otpRequest);
-  }
-
   @RequestMapping(value = "pendingOTP", method = RequestMethod.GET)
   public List<AppOTP> availPendingOTP() {
-
     return otpService.allPendingOTP();
   }
 
-  @GetMapping("public/purposeOfVisit")
-  @ApiImplicitParams({@ApiImplicitParam(name = "loggedInUserId")})
-  public HttpResponse<?> purposeOfVisit() {
-    HttpResponse<List<String>> response = new HttpResponse<>();
-    response.setResponseObject(visitorService.purposeOfVisit());
-    return response;
-  }
 }

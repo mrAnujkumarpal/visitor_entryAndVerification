@@ -38,7 +38,6 @@ public class ValidatorHelper {
     public boolean validateValueByRegex(String value, String regex) {
         Boolean bool = false;
         if (regex != null && regex.trim().length() != 0) {
-
             boolean matchesRegex = matchesRegex(value, regex);
             if (matchesRegex) {
                 bool = true;
@@ -55,9 +54,7 @@ public class ValidatorHelper {
     }
     public List<String[]> fetchFileDataRowWise(MultipartFile file) throws IOException {
         InputStream is = file.getInputStream();
-
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
         CSVReader csvReader = new CSVReader(reader);
         List<String[]> rawList = new ArrayList<>();
         rawList = csvReader.readAll();
@@ -76,20 +73,15 @@ public class ValidatorHelper {
         } else {
             fields = getClassFields(BulkUserRecords.class);
         }
-
         List<String> excludedFieldList = excludeFieldList();
-
         for (Field field : fields) {
             String name = field.getName();
             if (excludedFieldList.contains(name)) {
-
                 continue;
             }
             nameList.add(name);
-
         }
         return nameList;
-
     }
 
     private List<String> excludeFieldList() {
@@ -100,7 +92,6 @@ public class ValidatorHelper {
     private List<Field> getClassFields(Class<?> type) {
         List<Field> fields = new ArrayList<Field>();
         fields = getClassFields(fields, type);
-
         return fields;
     }
     private List<Field> getClassFields(List<Field> fields, Class<?> type) {
